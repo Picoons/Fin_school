@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Indicateurs économiques — Finance Accessible</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:         #ffffff;
+  --bg-card:    #f5f5f5;
+  --bg-card2:   #eeeeee;
+  --border:     rgba(0,0,0,0.08);
+  --border-md:  rgba(0,0,0,0.13);
+  --text:       #0a0a0a;
+  --text-muted: #555;
+  --text-faint: #999;
+  --green:      #00a85a;
+  --green-soft: rgba(0,168,90,0.08);
+  --red:        #e8203a;
+  --red-soft:   rgba(232,32,58,0.07);
+  --blue:       #2563eb;
+  --blue-soft:  rgba(37,99,235,0.07);
+  --amber:      #d97706;
+  --amber-soft: rgba(217,119,6,0.07);
+  --toggle-bg:  #e8e8e8;
+  --toggle-knob:#fff;
+}
+[data-theme="dark"] {
+  --bg:         #0d0d0d;
+  --bg-card:    #141414;
+  --bg-card2:   #1c1c1c;
+  --border:     rgba(255,255,255,0.07);
+  --border-md:  rgba(255,255,255,0.14);
+  --text:       #f0f0f0;
+  --text-muted: #888;
+  --text-faint: #444;
+  --green:      #00c076;
+  --green-soft: rgba(0,192,118,0.10);
+  --red:        #f03349;
+  --red-soft:   rgba(240,51,73,0.10);
+  --blue:       #60a5fa;
+  --blue-soft:  rgba(96,165,250,0.10);
+  --amber:      #fbbf24;
+  --amber-soft: rgba(251,191,36,0.10);
+  --toggle-bg:  #2a2a2a;
+  --toggle-knob:#f0f0f0;
+}
+
+html, body {
+  background: var(--bg); color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.2s, color 0.2s;
+}
+body { max-width: 1000px; margin: 0 auto; padding: 0 1.5rem 6rem; }
+
+/* NAV */
+nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 0; border-bottom: 1px solid var(--border); margin-bottom: 3rem;
+}
+.nav-logo { font-size: 0.95rem; font-weight: 700; color: var(--text); text-decoration: none; letter-spacing: -0.02em; }
+.nav-links { display: flex; gap: 1.5rem; }
+.nav-links a { font-size: 0.8rem; color: var(--text-faint); text-decoration: none; transition: color 0.15s; }
+.nav-links a:hover { color: var(--text); }
+.toggle-wrap { display: flex; align-items: center; gap: 0.5rem; }
+.toggle-label { font-size: 0.72rem; color: var(--text-faint); user-select: none; }
+.toggle {
+  position: relative; width: 36px; height: 20px;
+  background: var(--toggle-bg); border-radius: 100px; cursor: pointer;
+  border: 1px solid var(--border-md); transition: background 0.2s; flex-shrink: 0;
+}
+.toggle::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 14px; height: 14px; background: var(--toggle-knob);
+  border-radius: 50%; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+[data-theme="dark"] .toggle::after { transform: translateX(16px); }
+[data-theme="dark"] .toggle { background: #333; }
+
+/* HERO */
+.hero { margin-bottom: 2.5rem; }
+.hero-meta { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+.tag {
+  font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border-md);
+  color: var(--text-muted); background: var(--bg-card);
+}
+.tag-green { border-color: var(--green); color: var(--green); background: var(--green-soft); }
+.tag-blue  { border-color: var(--blue);  color: var(--blue);  background: var(--blue-soft); }
+.hero-time { font-size: 0.78rem; color: var(--text-faint); }
+h1 {
+  font-size: clamp(1.9rem, 4vw, 2.8rem); font-weight: 700;
+  letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 0.75rem; color: var(--text);
+}
+.hero-sub { font-size: 0.92rem; color: var(--text-muted); max-width: 640px; line-height: 1.65; }
+
+.intro-note {
+  border: 1px solid var(--border-md); border-left: 3px solid var(--text-faint);
+  background: var(--bg-card); border-radius: 0 6px 6px 0;
+  padding: 1rem 1.25rem; margin-bottom: 2.5rem;
+}
+.intro-note p { font-size: 0.85rem; color: var(--text-muted); margin: 0; line-height: 1.7; font-style: italic; }
+
+/* ── COUNTRY SELECTOR ── */
+.country-selector {
+  display: flex; gap: 0.75rem; margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+}
+.country-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
+  padding: 0.85rem 1.1rem; border-radius: 10px;
+  border: 1px solid var(--border-md); background: var(--bg-card);
+  cursor: pointer; transition: all 0.15s; flex: 1; min-width: 140px;
+  text-align: center;
+}
+.country-btn:hover { background: var(--bg-card2); border-color: var(--border-md); }
+.country-btn.active {
+  background: var(--text); border-color: var(--text);
+}
+.country-flag { font-size: 1.6rem; line-height: 1; }
+.country-name {
+  font-size: 0.78rem; font-weight: 600; color: var(--text-muted);
+  transition: color 0.15s;
+}
+.country-btn.active .country-name { color: var(--bg); }
+.country-count {
+  font-size: 0.65rem; color: var(--text-faint);
+  font-family: 'JetBrains Mono', monospace;
+}
+.country-btn.active .country-count { color: var(--bg-card2); }
+
+/* ── CATEGORY FILTER ── */
+.cat-filter {
+  display: flex; gap: 0.4rem; margin-bottom: 1.5rem; flex-wrap: wrap;
+}
+.cat-btn {
+  font-size: 0.7rem; font-weight: 500; padding: 4px 12px;
+  border-radius: 100px; border: 1px solid var(--border-md);
+  background: var(--bg-card); color: var(--text-muted);
+  cursor: pointer; transition: all 0.15s;
+}
+.cat-btn:hover { background: var(--bg-card2); }
+.cat-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+/* ── COUNTRY PANEL ── */
+.country-panel { display: none; }
+.country-panel.active { display: block; }
+
+.panel-header {
+  display: flex; align-items: center; gap: 1rem;
+  margin-bottom: 1.5rem; padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.panel-flag { font-size: 2rem; }
+.panel-title { font-size: 1.1rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+.panel-sub { font-size: 0.78rem; color: var(--text-faint); }
+
+/* ── INDICATOR GRID ── */
+.indicators-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+}
+
+/* ── INDICATOR CARD ── */
+.ind-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.ind-card:hover { border-color: var(--border-md); background: var(--bg-card2); }
+.ind-card.open { border-color: var(--border-md); }
+
+.ind-card-top {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 0.9rem 1rem; gap: 0.75rem;
+}
+.ind-left { flex: 1; min-width: 0; }
+.ind-ticker {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 500;
+  color: var(--blue); margin-bottom: 0.2rem; letter-spacing: 0.02em;
+}
+.ind-name { font-size: 0.85rem; font-weight: 600; color: var(--text); line-height: 1.25; }
+.ind-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.3rem; flex-shrink: 0; }
+.ind-stars { font-size: 0.7rem; letter-spacing: -1px; color: var(--amber); }
+.ind-freq {
+  font-size: 0.65rem; color: var(--text-faint); text-transform: uppercase;
+  letter-spacing: 0.06em; white-space: nowrap;
+}
+.ind-arrow {
+  font-size: 0.65rem; color: var(--text-faint);
+  transition: transform 0.2s; margin-top: 2px;
+}
+.ind-card.open .ind-arrow { transform: rotate(180deg); }
+
+.ind-body {
+  display: none; padding: 0 1rem 1rem;
+  border-top: 1px solid var(--border);
+}
+.ind-card.open .ind-body { display: block; padding-top: 0.85rem; }
+
+.ind-body p {
+  font-size: 0.8rem; line-height: 1.7; color: var(--text-muted); margin-bottom: 0.6rem;
+}
+.ind-body p:last-child { margin-bottom: 0; }
+.ind-body p strong { color: var(--text); font-weight: 600; }
+
+.ind-meta-row {
+  display: flex; gap: 1rem; margin-bottom: 0.75rem; flex-wrap: wrap;
+}
+.ind-meta-item { display: flex; flex-direction: column; gap: 1px; }
+.ind-meta-label { font-size: 0.62rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.08em; }
+.ind-meta-val { font-size: 0.75rem; color: var(--text); font-weight: 500; font-family: 'JetBrains Mono', monospace; }
+
+.callout-mini {
+  border-left: 2px solid var(--green); padding: 0.5rem 0.75rem;
+  background: var(--green-soft); border-radius: 0 4px 4px 0; margin-top: 0.6rem;
+}
+.callout-mini p { color: var(--green); font-size: 0.75rem; margin: 0; }
+.callout-mini-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+.callout-mini-blue p { color: var(--blue); }
+.callout-mini-amber { border-left-color: var(--amber); background: var(--amber-soft); }
+.callout-mini-amber p { color: var(--amber); }
+
+/* category badge */
+.cat-badge {
+  display: inline-block; font-size: 0.6rem; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 2px 6px; border-radius: 3px; margin-top: 0.25rem;
+  border: 1px solid var(--border);
+  color: var(--text-faint); background: transparent;
+}
+
+/* bottom */
+.bottom {
+  border-top: 1px solid var(--border); padding-top: 2rem; margin-top: 4rem;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 2rem;
+}
+.bottom h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.bottom p { font-size: 0.82rem; color: var(--text-faint); }
+.bottom-link {
+  font-size: 0.78rem; color: var(--text-muted); text-decoration: none;
+  border: 1px solid var(--border-md); padding: 6px 14px; border-radius: 6px;
+  white-space: nowrap; background: var(--bg-card); transition: all 0.15s;
+}
+.bottom-link:hover { color: var(--text); background: var(--bg-card2); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">Finance Accessible</a>
+  <div class="nav-links">
+    <a href="LASTtypes-graphiques-v4.html">Graphiques</a>
+    <a href="tickers-marches.html">Marchés</a>
+    <a href="classes-actifs.html">Actifs</a>
+    <a href="banques-centrales.html">Banques centrales</a>
+  </div>
+  <div class="toggle-wrap">
+    <span class="toggle-label" id="toggle-lbl">Light</span>
+    <div class="toggle" id="themeToggle" role="switch" aria-checked="false" tabindex="0"></div>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-meta">
+    <span class="tag tag-blue">Macro</span>
+    <span class="tag tag-green">Données</span>
+    <span class="hero-time">Référence</span>
+  </div>
+  <h1>Indicateurs économiques</h1>
+  <p class="hero-sub">GDP, CPI, NFP, PMI — ces acronymes pilotent les marchés à chaque publication. Retrouvez ici les principaux indicateurs de chaque zone économique, leur ticker Bloomberg, leur fréquence, et pourquoi les marchés les regardent.</p>
+</div>
+
+<div class="intro-note">
+  <p>Les indicateurs économiques sont les données qui permettent de mesurer l'état d'une économie en temps réel. Chaque publication est un événement de marché — les prix bougent dans les secondes qui suivent, parfois violemment. Comprendre ce que mesure chaque indicateur, c'est comprendre pourquoi.</p>
+</div>
+
+<!-- COUNTRY SELECTOR -->
+<div class="country-selector" id="countrySelector">
+  <button class="country-btn active" data-country="us">
+    <span class="country-flag">🇺🇸</span>
+    <span class="country-name">États-Unis</span>
+    <span class="country-count">20 indicateurs</span>
+  </button>
+  <button class="country-btn" data-country="eu">
+    <span class="country-flag">🇪🇺</span>
+    <span class="country-name">Zone Euro</span>
+    <span class="country-count">14 indicateurs</span>
+  </button>
+  <button class="country-btn" data-country="uk">
+    <span class="country-flag">🇬🇧</span>
+    <span class="country-name">Royaume-Uni</span>
+    <span class="country-count">11 indicateurs</span>
+  </button>
+  <button class="country-btn" data-country="jp">
+    <span class="country-flag">🇯🇵</span>
+    <span class="country-name">Japon</span>
+    <span class="country-count">10 indicateurs</span>
+  </button>
+  <button class="country-btn" data-country="cn">
+    <span class="country-flag">🇨🇳</span>
+    <span class="country-name">Chine</span>
+    <span class="country-count">10 indicateurs</span>
+  </button>
+</div>
+
+<!-- ══════════════ US ══════════════ -->
+<div class="country-panel active" id="panel-us">
+  <div class="panel-header">
+    <span class="panel-flag">🇺🇸</span>
+    <div>
+      <div class="panel-title">États-Unis</div>
+      <div class="panel-sub">Dollar · Fed · NYSE / Nasdaq</div>
+    </div>
+  </div>
+  <div class="cat-filter" id="filter-us">
+    <button class="cat-btn active" data-cat="all">Tous</button>
+    <button class="cat-btn" data-cat="activite">Activité</button>
+    <button class="cat-btn" data-cat="inflation">Inflation</button>
+    <button class="cat-btn" data-cat="emploi">Emploi</button>
+    <button class="cat-btn" data-cat="immobilier">Immobilier</button>
+    <button class="cat-btn" data-cat="sentiment">Sentiment</button>
+    <button class="cat-btn" data-cat="banquecentrale">Banque centrale</button>
+  </div>
+  <div class="indicators-grid" id="grid-us"></div>
+</div>
+
+<!-- ══════════════ EU ══════════════ -->
+<div class="country-panel" id="panel-eu">
+  <div class="panel-header">
+    <span class="panel-flag">🇪🇺</span>
+    <div>
+      <div class="panel-title">Zone Euro</div>
+      <div class="panel-sub">Euro · BCE · Euronext</div>
+    </div>
+  </div>
+  <div class="cat-filter" id="filter-eu">
+    <button class="cat-btn active" data-cat="all">Tous</button>
+    <button class="cat-btn" data-cat="activite">Activité</button>
+    <button class="cat-btn" data-cat="inflation">Inflation</button>
+    <button class="cat-btn" data-cat="emploi">Emploi</button>
+    <button class="cat-btn" data-cat="sentiment">Sentiment</button>
+    <button class="cat-btn" data-cat="banquecentrale">Banque centrale</button>
+  </div>
+  <div class="indicators-grid" id="grid-eu"></div>
+</div>
+
+<!-- ══════════════ UK ══════════════ -->
+<div class="country-panel" id="panel-uk">
+  <div class="panel-header">
+    <span class="panel-flag">🇬🇧</span>
+    <div>
+      <div class="panel-title">Royaume-Uni</div>
+      <div class="panel-sub">Livre sterling · BoE · LSE</div>
+    </div>
+  </div>
+  <div class="cat-filter" id="filter-uk">
+    <button class="cat-btn active" data-cat="all">Tous</button>
+    <button class="cat-btn" data-cat="activite">Activité</button>
+    <button class="cat-btn" data-cat="inflation">Inflation</button>
+    <button class="cat-btn" data-cat="emploi">Emploi</button>
+    <button class="cat-btn" data-cat="immobilier">Immobilier</button>
+    <button class="cat-btn" data-cat="sentiment">Sentiment</button>
+    <button class="cat-btn" data-cat="banquecentrale">Banque centrale</button>
+  </div>
+  <div class="indicators-grid" id="grid-uk"></div>
+</div>
+
+<!-- ══════════════ JP ══════════════ -->
+<div class="country-panel" id="panel-jp">
+  <div class="panel-header">
+    <span class="panel-flag">🇯🇵</span>
+    <div>
+      <div class="panel-title">Japon</div>
+      <div class="panel-sub">Yen · BoJ · TSE</div>
+    </div>
+  </div>
+  <div class="cat-filter" id="filter-jp">
+    <button class="cat-btn active" data-cat="all">Tous</button>
+    <button class="cat-btn" data-cat="activite">Activité</button>
+    <button class="cat-btn" data-cat="inflation">Inflation</button>
+    <button class="cat-btn" data-cat="emploi">Emploi</button>
+    <button class="cat-btn" data-cat="sentiment">Sentiment</button>
+    <button class="cat-btn" data-cat="banquecentrale">Banque centrale</button>
+  </div>
+  <div class="indicators-grid" id="grid-jp"></div>
+</div>
+
+<!-- ══════════════ CN ══════════════ -->
+<div class="country-panel" id="panel-cn">
+  <div class="panel-header">
+    <span class="panel-flag">🇨🇳</span>
+    <div>
+      <div class="panel-title">Chine</div>
+      <div class="panel-sub">Renminbi · PBoC · SSE / SZSE</div>
+    </div>
+  </div>
+  <div class="cat-filter" id="filter-cn">
+    <button class="cat-btn active" data-cat="all">Tous</button>
+    <button class="cat-btn" data-cat="activite">Activité</button>
+    <button class="cat-btn" data-cat="inflation">Inflation</button>
+    <button class="cat-btn" data-cat="sentiment">Sentiment</button>
+    <button class="cat-btn" data-cat="banquecentrale">Banque centrale</button>
+  </div>
+  <div class="indicators-grid" id="grid-cn"></div>
+</div>
+
+<div class="bottom">
+  <div>
+    <h3>Prochainement</h3>
+    <p>Supports & résistances — identifier les niveaux clés sur un graphique.</p>
+  </div>
+  <a class="bottom-link" href="index.html">← Retour à l'accueil</a>
+</div>
+
+<script>
+/* ── THEME ── */
+const html = document.documentElement;
+const toggle = document.getElementById('themeToggle');
+const lbl = document.getElementById('toggle-lbl');
+toggle.addEventListener('click', switchTheme);
+toggle.addEventListener('keydown', e => (e.key==='Enter'||e.key===' ') && switchTheme());
+function switchTheme() {
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  toggle.setAttribute('aria-checked', String(!isDark));
+  lbl.textContent = isDark ? 'Light' : 'Dark';
+}
+
+/* ══════════════════════════════════════
+   DATA
+══════════════════════════════════════ */
+const DATA = {
+
+us: [
+  { ticker:'GDPCQOQ', name:'Gross Domestic Product', cat:'activite', freq:'Trimestriel', stars:3,
+    desc:'Mesure la valeur totale de tous les biens et services produits aux États-Unis sur un trimestre. C\'est l\'indicateur le plus large de l\'activité économique.',
+    detail:'Publié en trois versions : avancée (advance), révisée (second) et finale (third). La version avancée, publiée ~30 jours après la fin du trimestre, est la plus attendue. <strong>Au-dessus de 2% en rythme annualisé</strong> est généralement considéré comme sain.',
+    note:'Formule : GDP = C + I + G + NX. Un chiffre très fort peut pousser la Fed à maintenir des taux élevés — ce qui peut paradoxalement peser sur les actions.', noteType:'blue' },
+
+  { ticker:'RSTAMOM', name:'Retail Sales', cat:'activite', freq:'Mensuel', stars:3,
+    desc:'Mesure les ventes au détail aux États-Unis — le baromètre de la consommation des ménages, qui représente environ 70% du GDP américain.',
+    detail:'Publié ~2 semaines après la fin du mois. La version "core" (hors automobiles et essence) est souvent préférée car moins volatile. Un chiffre fort signifie que les ménages consomment — signe de bonne santé économique, mais aussi potentiellement inflationniste.',
+    note:'Les marchés regardent souvent le chiffre MoM (mois sur mois). Un chiffre surprise fort = dollar qui monte, obligations qui baissent.', noteType:'amber' },
+
+  { ticker:'IP CHNG', name:'Industrial Production', cat:'activite', freq:'Mensuel', stars:2,
+    desc:'Mesure la production des usines, mines et services publics américains. Indicateur du secteur manufacturier, qui ne représente plus que ~10% du GDP mais reste très suivi.',
+    detail:'Publié par la Fed. Accompagné du taux d\'utilisation des capacités (Capacity Utilization), qui indique à quel pourcentage les usines tournent. Un taux élevé (>80%) peut signaler des pressions inflationnistes.',
+    note:'Moins impactant qu\'avant — l\'économie américaine est très servicielle. Mais les marchés le lisent comme indicateur avancé du cycle industriel mondial.', noteType:'blue' },
+
+  { ticker:'CPUPXCHG', name:'Consumer Price Index (CPI)', cat:'inflation', freq:'Mensuel', stars:3,
+    desc:'L\'indicateur d\'inflation grand public le plus connu. Mesure l\'évolution des prix d\'un panier de biens et services représentatif de la consommation américaine.',
+    detail:'Publié par le Bureau of Labor Statistics (BLS). La version <strong>Core CPI</strong> (hors alimentation et énergie, plus volatile) est celle que regarde la Fed. La cible implicite est ~2% annuel. Un CPI fort oblige la Fed à garder des taux élevés — ce qui pèse sur les actifs risqués.',
+    note:'C\'est probablement la publication la plus attendue des marchés chaque mois. Les 5 minutes autour de sa publication sont parmi les plus volatiles de l\'année.', noteType:'amber' },
+
+  { ticker:'PCECMOM', name:'PCE Deflator', cat:'inflation', freq:'Mensuel', stars:2,
+    desc:'Personal Consumption Expenditures — la mesure d\'inflation <em>officiellement préférée de la Fed</em>. Légèrement différente du CPI dans sa méthodologie.',
+    detail:'Contrairement au CPI qui mesure un panier fixe, le PCE s\'ajuste aux substitutions de consommation (si le bœuf devient trop cher et que les gens achètent plus de poulet, le PCE le capte). Il tend à donner une inflation légèrement inférieure au CPI. La Fed cible 2% sur le PCE Core.',
+    note:'Moins connu du grand public que le CPI, mais techniquement plus important pour les décisions de la Fed.', noteType:'blue' },
+
+  { ticker:'PXFECHNG', name:'Producer Price Index (PPI)', cat:'inflation', freq:'Mensuel', stars:2,
+    desc:'Mesure l\'évolution des prix à la production — les prix que les entreprises reçoivent pour leurs biens et services, avant qu\'ils n\'arrivent au consommateur.',
+    detail:'Considéré comme un <strong>indicateur avancé de l\'inflation CPI</strong>. Si les entreprises paient plus cher leurs inputs, elles répercuteront ces hausses sur le consommateur dans les mois suivants. Publié un jour avant le CPI — les marchés l\'utilisent pour calibrer leurs attentes.',
+    note:'Un PPI fort + CPI encore bas = inflation à venir. Les marchés de taux l\'anticipent immédiatement.', noteType:'amber' },
+
+  { ticker:'NFP TCH', name:'Nonfarm Payrolls', cat:'emploi', freq:'Mensuel', stars:3,
+    desc:'Le "NFP" — le rapport sur l\'emploi le plus scruté au monde. Mesure le nombre d\'emplois créés hors secteur agricole aux États-Unis le mois précédent.',
+    detail:'Publié le premier vendredi de chaque mois à 8h30 EST. Accompagné du taux de chômage, du taux de participation et des salaires horaires moyens (Average Hourly Earnings). Un NFP fort + salaires en hausse = pression inflationniste + Fed restrictive.',
+    note:'Le premier vendredi du mois est l\'un des moments les plus volatils des marchés. Les spreads sur les marchés de devises s\'élargissent dans les minutes précédant la publication.', noteType:'amber' },
+
+  { ticker:'USURTOT', name:'Unemployment Rate', cat:'emploi', freq:'Mensuel', stars:3,
+    desc:'Le taux de chômage officiel — pourcentage de la population active qui cherche activement un emploi sans en trouver.',
+    detail:'Publié en même temps que le NFP. La Fed surveille le <strong>chômage de plein emploi</strong>, estimé autour de 4-4.5%. En dessous, l\'économie risque de surchauffer. Au-dessus, la Fed peut assouplir sa politique. La version U-6 (sous-emploi) est plus large et parfois plus révélatrice.',
+    note:'Le mandat dual de la Fed : stabilité des prix ET plein emploi. Le chômage influence directement ses décisions de taux.', noteType:'blue' },
+
+  { ticker:'INJCJC', name:'Initial Jobless Claims', cat:'emploi', freq:'Hebdomadaire', stars:2,
+    desc:'Nombre de personnes ayant déposé une demande d\'allocations chômage pour la première fois. Publié chaque jeudi — l\'indicateur haute fréquence du marché de l\'emploi.',
+    detail:'Sa fréquence hebdomadaire en fait un signal rapide sur la santé du marché de l\'emploi, bien avant le NFP mensuel. Une montée soudaine des claims signale une détérioration rapide. La moyenne mobile sur 4 semaines est souvent regardée pour lisser le bruit.',
+    note:'Moins de 250k = marché de l\'emploi solide. Au-dessus de 300k = signal d\'alerte. Les marchés le comparent systématiquement aux attentes.', noteType:'green' },
+
+  { ticker:'NAPMPMI', name:'ISM Manufacturing PMI', cat:'sentiment', freq:'Mensuel', stars:3,
+    desc:'Indice de confiance des directeurs d\'achats dans le secteur manufacturier américain. L\'un des premiers indicateurs du cycle économique à être publié chaque mois.',
+    detail:'<strong>Au-dessus de 50 = expansion</strong>. En dessous de 50 = contraction. Basé sur des enquêtes auprès des directeurs d\'achats. Sous-composantes clés : nouvelles commandes (leading indicator), emploi, prix payés (inflationniste). Publié le premier jour ouvré du mois.',
+    note:'Parce qu\'il sort très tôt dans le mois, il donne un signal avancé sur la dynamique économique à venir.', noteType:'green' },
+
+  { ticker:'NAPMNMI', name:'ISM Services PMI', cat:'sentiment', freq:'Mensuel', stars:2,
+    desc:'La version services de l\'ISM PMI — plus important que le manufacturing car les services représentent ~80% de l\'économie américaine.',
+    detail:'Même logique : au-dessus de 50 = expansion. La composante "prix payés" est particulièrement surveillée pour les signaux d\'inflation dans les services, qui est la partie la plus persistante de l\'inflation actuelle.',
+    note:'L\'inflation des services est plus "sticky" (collante) que celle des biens. Un ISM Services fort avec prix élevés = Fed attentive.', noteType:'amber' },
+
+  { ticker:'CONCCONF', name:'Conference Board Consumer Confidence', cat:'sentiment', freq:'Mensuel', stars:2,
+    desc:'Mesure la confiance des ménages américains dans la situation économique actuelle et future. Indicateur avancé de la consommation.',
+    detail:'Basé sur un sondage de 5 000 ménages. Comporte deux sous-indices : la situation actuelle et les attentes futures. L\'indice d\'attentes est considéré comme un meilleur indicateur avancé. La version Michigan (UMCSENT) est publiée deux fois par mois et très suivie.',
+    note:'Un ménage confiant dépense plus. Un ménage inquiet épargne. La confiance des ménages est un signal avancé de la consommation à venir.', noteType:'green' },
+
+  { ticker:'NHSLTOT', name:'New Home Sales', cat:'immobilier', freq:'Mensuel', stars:2,
+    desc:'Nombre de maisons neuves vendues aux États-Unis. L\'immobilier neuf est un indicateur avancé de l\'activité de construction et de l\'économie en général.',
+    detail:'Très sensible aux taux hypothécaires. Quand la Fed monte ses taux, les taux hypothécaires suivent et les ventes de maisons neuves s\'effondrent — c\'est l\'un des premiers secteurs impactés par le resserrement monétaire.',
+    note:'L\'immobilier représente ~15-18% du GDP américain. Un effondrement de l\'immobilier précède souvent une récession — comme en 2007.', noteType:'amber' },
+
+  { ticker:'SPCS20Y%', name:'Case-Shiller Home Price Index', cat:'immobilier', freq:'Mensuel', stars:1,
+    desc:'Mesure l\'évolution des prix de l\'immobilier résidentiel dans les 20 principales métropoles américaines. La référence pour les prix de l\'immobilier US.',
+    detail:'Publié avec 2 mois de décalage — indicateur retardé. Mais très suivi car l\'immobilier représente la principale richesse des ménages américains. Une baisse du Case-Shiller érode la richesse des ménages et peut peser sur la consommation (effet richesse négatif).',
+    note:'L\'effet richesse immobilier est puissant aux États-Unis — quand les maisons valent plus, les ménages se sentent plus riches et consomment davantage.', noteType:'blue' },
+
+  { ticker:'DGNOCHNG', name:'Durable Goods Orders', cat:'activite', freq:'Mensuel', stars:2,
+    desc:'Commandes de biens durables (avions, machines, équipements) — indicateur de l\'investissement des entreprises.',
+    detail:'La version "ex-Transport" (hors commandes d\'avions, très volatiles) et surtout "nondefense capital goods ex aircraft" (Core Capex) est la plus regardée pour mesurer l\'investissement productif des entreprises. Un Core Capex fort = entreprises qui investissent = économie saine.',
+    note:'Les commandes d\'avions faussent souvent le chiffre headline. Toujours regarder la version core.', noteType:'amber' },
+
+  { ticker:'USTBTOT', name:'Balance of Trade', cat:'activite', freq:'Mensuel', stars:2,
+    desc:'La différence entre les exportations et les importations américaines. Un déficit commercial signifie que les États-Unis importent plus qu\'ils n\'exportent.',
+    detail:'Les États-Unis ont un déficit commercial structurel — ils importent massivement de Chine, d\'Europe, du Mexique. Ce déficit est financé par les flux de capitaux entrants (investissements étrangers en actifs américains). Très politiquement sensible — souvent au cœur des tensions commerciales.',
+    note:'Un dollar fort aggrave le déficit commercial (imports moins chers, exports plus chères). C\'est une des tensions entre la politique de la Fed et la compétitivité des exportateurs.', noteType:'blue' },
+
+  { ticker:'OUTFGAF', name:'Philadelphia Fed Survey', cat:'sentiment', freq:'Mensuel', stars:3,
+    desc:'Sondage des entreprises manufacturières de la région de Philadelphie sur les conditions actuelles et futures. Indicateur avancé de l\'ISM national.',
+    detail:'Publié avant l\'ISM Manufacturing, il est utilisé comme signal avancé. Au-dessus de 0 = expansion. La composante "nouvelles commandes" est particulièrement regardée. Avec l\'Empire State Survey, il donne une première lecture de la santé du secteur manufacturier.',
+    note:'Souvent la première indication de ce que sera l\'ISM national quelques semaines plus tard.', noteType:'green' },
+
+  { ticker:'FDTR', name:'Fed Funds Rate', cat:'banquecentrale', freq:'8x/an (FOMC)', stars:3,
+    desc:'Le taux directeur de la Réserve Fédérale américaine. Le prix auquel les banques se prêtent de l\'argent entre elles au jour le jour — le taux le plus influent au monde.',
+    detail:'Fixé lors des réunions du FOMC (Federal Open Market Committee), 8 fois par an. La décision est publiée à 14h00 EST, suivie d\'une conférence de presse du président de la Fed à 14h30. <strong>Tous les actifs financiers mondiaux réagissent</strong> à cette décision.',
+    note:'Quand la Fed monte ses taux : dollar monte, obligations baissent, actions sous pression, or en baisse. L\'inverse quand elle baisse.', noteType:'amber' },
+
+  { ticker:'FOMC', name:'FOMC Minutes', cat:'banquecentrale', freq:'3 semaines après FOMC', stars:2,
+    desc:'Le procès-verbal détaillé des réunions du FOMC. Révèle les débats internes, les préoccupations et les orientations futures de la Fed.',
+    detail:'Publié 3 semaines après chaque réunion. Les marchés l\'analysent mot par mot pour détecter des signaux sur les prochaines décisions — notamment le langage autour de l\'inflation, de l\'emploi et du bilan. Un ton plus "hawkish" que prévu fait monter le dollar et baisser les actifs risqués.',
+    note:'Les nuances de langage comptent autant que les chiffres. "Inflation remains elevated" vs "inflation is moderating" sont des signaux très différents pour les marchés.', noteType:'blue' },
+
+  { ticker:'USURTOT', name:'U. of Michigan Sentiment', cat:'sentiment', freq:'2x/mois', stars:2,
+    desc:'Indice de confiance des consommateurs américains publié par l\'Université du Michigan. Souvent comparé au Conference Board pour avoir une image complète.',
+    detail:'Publié deux fois par mois (version flash puis finale). Comporte un sous-indice d\'attentes d\'inflation des ménages, très regardé par la Fed comme signal des anticipations inflationnistes. Si les ménages s\'attendent à une forte inflation, ils demandent des hausses de salaires — ce qui crée une boucle inflationniste.',
+    note:'Les anticipations d\'inflation à 5-10 ans du Michigan sont l\'un des chiffres les plus scrutés par la Fed pour évaluer l\'ancrage des anticipations.', noteType:'blue' },
+],
+
+eu: [
+  { ticker:'EUGDPYOY', name:'GDP Zone Euro', cat:'activite', freq:'Trimestriel', stars:3,
+    desc:'Le PIB de la zone euro — agrégat de 20 économies très différentes sous une même monnaie. Mesure la croissance économique de l\'ensemble de la région.',
+    detail:'Publié par Eurostat. La version flash (première estimation) est la plus attendue. La divergence entre économies membres est souvent aussi importante que le chiffre agrégé — une zone euro qui croît tirée uniquement par l\'Espagne et avec une Allemagne en récession est une situation très différente.',
+    note:'L\'hétérogénéité de la zone euro est un défi permanent pour la BCE : un seul taux pour des économies aux besoins très différents.', noteType:'amber' },
+
+  { ticker:'EMUSGDP', name:'Gross dom. product (Flash)', cat:'activite', freq:'Trimestriel', stars:3,
+    desc:'La première estimation du GDP zone euro, publiée ~30 jours après la fin du trimestre. Version "flash" très attendue car première lecture de la croissance.',
+    detail:'Basé sur des données partielles — sera révisé. Mais c\'est cette première lecture qui fait bouger les marchés. Comparable aux Advance GDP releases américaines. Les écarts entre flash et version finale peuvent être significatifs.',
+    note:'Les marchés réagissent à la surprise par rapport aux attentes du consensus Bloomberg, pas au chiffre absolu.', noteType:'blue' },
+
+  { ticker:'GRPPIAMM', name:'German IFO Business Climate', cat:'sentiment', freq:'Mensuel', stars:3,
+    desc:'L\'indicateur de confiance des entreprises allemandes — souvent appelé "le baromètre de l\'économie européenne". L\'Allemagne étant la première économie de la zone, l\'IFO est un excellent signal avancé.',
+    detail:'Basé sur une enquête de 9 000 entreprises allemandes. Comporte deux sous-indices : la situation actuelle et les attentes. L\'index des attentes est particulièrement regardé comme indicateur avancé. Publié à la fin de chaque mois.',
+    note:'Quand l\'IFO baisse, les marchés européens ont tendance à baisser. L\'Allemagne représente ~30% du GDP zone euro.', noteType:'amber' },
+
+  { ticker:'GRZEWI', name:'German ZEW Economic Sentiment', cat:'sentiment', freq:'Mensuel', stars:3,
+    desc:'Sondage des analystes et investisseurs financiers allemands sur leurs attentes économiques à 6 mois. Indicateur des marchés financiers sur l\'économie réelle.',
+    detail:'Différence de l\'IFO : le ZEW mesure les attentes des <em>investisseurs financiers</em>, pas des entreprises. Il est donc plus corrélé aux marchés et moins à l\'économie réelle. Très volatile. Publié le second mardi du mois.',
+    note:'Plus volatil et moins fiable que l\'IFO, mais publié plus tôt dans le mois — donc souvent regardé en premier.', noteType:'blue' },
+
+  { ticker:'PMITMEZ', name:'PMI Manufacturing Zone Euro', cat:'sentiment', freq:'Mensuel', stars:3,
+    desc:'L\'indice PMI manufacturier de la zone euro — composite des PMIs nationaux pondérés par le PIB. Au-dessus de 50 = expansion, en dessous = contraction.',
+    detail:'Publié par S&P Global (ex-IHS Markit). La version flash (publiée ~10 jours avant la version finale) est la plus suivie. Sous-composantes clés : nouvelles commandes, emploi, prix des inputs. C\'est l\'un des meilleurs indicateurs avancés du cycle économique européen.',
+    note:'Le PMI Manufacturing zone euro est sous 50 depuis fin 2022 — signe de la faiblesse industrielle européenne face à la compétition énergétique et asiatique.', noteType:'amber' },
+
+  { ticker:'PMITSEZ', name:'PMI Services Zone Euro', cat:'sentiment', freq:'Mensuel', stars:3,
+    desc:'Version services du PMI zone euro. Les services représentent ~75% du GDP européen — cet indice est donc crucial pour lire la dynamique économique globale.',
+    detail:'Même méthodologie que le PMI Manufacturing. La divergence entre Manufacturing (souvent faible) et Services (plus résilient) est caractéristique de la période post-Covid en Europe. Un services PMI fort avec un manufacturing faible = économie à deux vitesses.',
+    note:'La résilience des services européens explique en partie pourquoi la récession attendue en 2023 n\'a pas eu lieu.', noteType:'green' },
+
+  { ticker:'ECCPEST', name:'HICP Zone Euro (Flash)', cat:'inflation', freq:'Mensuel', stars:3,
+    desc:'Harmonised Index of Consumer Prices — la mesure d\'inflation officielle de la BCE. La version flash sort environ 2 semaines avant la version finale.',
+    detail:'C\'est l\'indicateur que la BCE utilise pour ses décisions de taux. La cible est 2% en glissement annuel. La version Core (hors énergie et alimentation) est la plus regardée pour le signal structurel. L\'énergie représentait une part majeure de l\'inflation européenne post-guerre en Ukraine.',
+    note:'La BCE a commencé son cycle de hausse beaucoup plus tard que la Fed en 2022 — en partie parce que l\'inflation européenne était d\'abord vue comme un choc d\'offre (énergie) plutôt que de demande.', noteType:'amber' },
+
+  { ticker:'UMRTEMU', name:'Unemployment Rate Zone Euro', cat:'emploi', freq:'Mensuel', stars:2,
+    desc:'Taux de chômage harmonisé de la zone euro. Masque des disparités énormes entre pays membres.',
+    detail:'En 2024, le chômage allemand était autour de 3%, espagnol à 12%, français à 7%. Le chiffre agrégé cache ces écarts. La BCE doit gérer une politique monétaire unique pour des marchés du travail très différents — c\'est un de ses défis structurels.',
+    note:'Contrairement à la Fed, la BCE n\'a pas de mandat d\'emploi explicite — seulement la stabilité des prix. Mais elle surveille le chômage comme indicateur de slack économique.', noteType:'blue' },
+
+  { ticker:'EUPEMUY', name:'Producer Price Index Zone Euro', cat:'inflation', freq:'Mensuel', stars:2,
+    desc:'Prix à la production en zone euro — indicateur avancé de l\'inflation à venir côté consommateur.',
+    detail:'Très impacté par les prix de l\'énergie et des matières premières. Le PPI allemand en particulier est suivi comme signal des pressions inflationnistes à venir pour l\'ensemble de la zone. Des PPI très négatifs (comme en 2023) signalent une désinflation à venir.',
+    note:'Le cycle de désinflation européen de 2023-2024 avait été en grande partie anticipé par la chute du PPI en 2022-2023.', noteType:'green' },
+
+  { ticker:'EONIA', name:'BCE Refi Rate', cat:'banquecentrale', freq:'8x/an', stars:3,
+    desc:'Le taux de refinancement de la BCE — le taux directeur principal de la Banque Centrale Européenne. Fixé lors des réunions du Conseil des gouverneurs.',
+    detail:'La BCE utilise en réalité trois taux : le taux de dépôt (deposit facility rate, le plus regardé), le taux de refinancement (refi rate), et le taux de prêt marginal. Depuis 2022, le taux de dépôt est passé de -0,5% à 4% — le cycle de hausse le plus rapide de l\'histoire de la BCE.',
+    note:'La conférence de presse de Christine Lagarde après chaque décision est aussi suivie que la décision elle-même. Les marchés analysent chaque nuance du "data dependent".', noteType:'amber' },
+
+  { ticker:'EURR002W', name:'Retail Sales Zone Euro', cat:'activite', freq:'Mensuel', stars:2,
+    desc:'Ventes au détail en zone euro — baromètre de la consommation des ménages européens. Moins impactant qu\'aux US car la consommation pèse moins dans le GDP européen.',
+    detail:'Publié par Eurostat avec environ 5-6 semaines de décalage. Moins suivi que les équivalents américains mais important pour calibrer la résistance du consommateur européen face aux hausses de taux.',
+    note:'La consommation européenne est plus sensible aux hausses de taux que l\'américaine — plus de crédits à taux variable, moins d\'épargne Covid.', noteType:'blue' },
+
+  { ticker:'FOMN', name:'FOMC Impact sur EUR/USD', cat:'banquecentrale', freq:'Selon Fed', stars:3,
+    desc:'La décision de la Fed n\'est pas un indicateur européen — mais elle impacte directement la zone euro. Le différentiel de taux Fed/BCE est le principal driver du taux EUR/USD.',
+    detail:'Quand la Fed monte ses taux plus que la BCE, le dollar s\'apprécie face à l\'euro. Un euro faible augmente le coût des imports (notamment l\'énergie, libellée en dollars) et donc l\'inflation importée en Europe. La BCE doit en tenir compte dans ses décisions.',
+    note:'En 2022, l\'EUR/USD est brièvement passé sous la parité (1.00) pour la première fois depuis 2002 — reflet du différentiel de taux et de la crise énergétique.', noteType:'amber' },
+
+  { ticker:'CONSSENT', name:'Consumer Confidence Zone Euro', cat:'sentiment', freq:'Mensuel', stars:1,
+    desc:'Indice de confiance des consommateurs européens publié par la Commission Européenne. Indicateur avancé de la consommation et de l\'activité future.',
+    detail:'Basé sur des sondages dans tous les pays membres. La version flash est publiée en fin de mois. Composantes : situation financière actuelle et future, achats importants, épargne. Très impacté par les événements géopolitiques — guerre en Ukraine, crise énergétique.',
+    note:'La confiance des consommateurs européens est structurellement plus faible que celle des américains — reflet d\'une culture de l\'épargne plus forte et d\'une moindre exposition aux marchés actions.', noteType:'blue' },
+
+  { ticker:'GRIFFBUS', name:'German GDP', cat:'activite', freq:'Trimestriel', stars:3,
+    desc:'Le PIB allemand pris isolément — la première économie européenne. L\'Allemagne représente ~30% du GDP zone euro et son évolution conditionne souvent celle de la zone entière.',
+    detail:'L\'Allemagne a connu une récession technique en 2023-2024, tirée vers le bas par la crise industrielle et la transition énergétique. Très dépendante de ses exportations manufacturières et donc de la demande mondiale, notamment chinoise. Un signal très suivi pour l\'ensemble des marchés européens.',
+    note:'La compétitivité industrielle allemande est sous pression : coûts énergétiques post-Ukraine, concurrence chinoise dans l\'automobile, transition électrique. Un enjeu majeur pour la zone euro.', noteType:'amber' },
+],
+
+uk: [
+  { ticker:'UKGRABIQ', name:'UK GDP', cat:'activite', freq:'Mensuel + Trimestriel', stars:3,
+    desc:'Le PIB britannique — unique parmi les grandes économies, le Royaume-Uni publie son GDP chaque mois (en plus de la version trimestrielle). Première lecture de l\'activité économique.',
+    detail:'Depuis 2018, l\'ONS (Office for National Statistics) publie une estimation mensuelle du GDP. Très utile pour suivre la dynamique en temps quasi-réel. Le GDP trimestriel reste la référence pour les comparaisons internationales.',
+    note:'Post-Brexit, le Royaume-Uni a vu sa croissance structurellement affaiblie par les frictions commerciales avec l\'UE — son principal partenaire.', noteType:'amber' },
+
+  { ticker:'UKRVAMOM', name:'UK Retail Sales', cat:'activite', freq:'Mensuel', stars:2,
+    desc:'Ventes au détail au Royaume-Uni — baromètre de la consommation des ménages britanniques. Très sensible aux variations du pouvoir d\'achat et à la confiance.',
+    detail:'Le consommateur britannique a été particulièrement touché par l\'inflation post-Covid — l\'une des plus élevées parmi les pays du G7. Des taux hypothécaires très variables ont amplifié l\'impact des hausses de la BoE sur les ménages.',
+    note:'Au Royaume-Uni, une grande partie des crédits immobiliers sont à taux variable ou à taux fixe sur 2 ans. Les hausses de la BoE se transmettent donc très rapidement à l\'économie réelle.', noteType:'amber' },
+
+  { ticker:'UKIPIYOY', name:'UK CPI', cat:'inflation', freq:'Mensuel', stars:3,
+    desc:'L\'inflation britannique mesurée par le Consumer Prices Index. La cible de la BoE est 2%. Le Royaume-Uni a connu l\'une des inflations les plus persistantes parmi les économies développées post-Covid.',
+    detail:'Publié par l\'ONS. La version Core (hors alimentation et énergie) est la plus regardée par la BoE. L\'inflation des services a été particulièrement persistante au Royaume-Uni — reflet d\'un marché du travail tendu et d\'une forte indexation des salaires.',
+    note:'En 2023, le UK CPI a atteint +11% — le niveau le plus élevé depuis les années 1980. La BoE a dû monter ses taux agressivement, créant une crise du marché immobilier.', noteType:'amber' },
+
+  { ticker:'UKRPCJYR', name:'UK RPI (Retail Price Index)', cat:'inflation', freq:'Mensuel', stars:1,
+    desc:'Mesure d\'inflation plus ancienne que le CPI, qui inclut les coûts du logement. Toujours utilisée pour indexer certains contrats, gilts indexés, loyers et augmentations salariales.',
+    detail:'Le RPI est systématiquement plus élevé que le CPI car il inclut les coûts hypothécaires et d\'autres composantes. Techniquement moins précis mais légalement utilisé dans de nombreux contrats britanniques. La divergence RPI/CPI est une source de débat politique.',
+    note:'Le gouvernement britannique préférerait migrer vers le CPI pour indexer moins de dépenses, mais de nombreux contrats et obligations sont contractuellement liés au RPI.', noteType:'blue' },
+
+  { ticker:'UKPPIOY', name:'UK PPI', cat:'inflation', freq:'Mensuel', stars:1,
+    desc:'Prix à la production au Royaume-Uni. Indicateur avancé des pressions inflationnistes côté entreprises, avant transmission au consommateur.',
+    detail:'Moins suivi que le CPI ou le RPI mais utile pour anticiper les prochaines publications d\'inflation. La composante "input prices" (matières premières) est particulièrement regardée.',
+    note:'La livre faible post-Brexit a augmenté le coût des imports et donc des inputs pour les entreprises britanniques — un facteur aggravant de l\'inflation.', noteType:'blue' },
+
+  { ticker:'UKPPLOYY', name:'UK Unemployment Rate', cat:'emploi', freq:'Mensuel', stars:2,
+    desc:'Taux de chômage britannique publié par l\'ONS. Accompagné des données salariales (Average Weekly Earnings) — très regardées pour l\'inflation des services.',
+    detail:'Le Royaume-Uni a connu un marché de l\'emploi exceptionnellement tendu post-Covid, avec un chômage sous 4%. La composante "earnings growth" (croissance des salaires) est cruciale pour la BoE — des salaires qui augmentent trop vite alimentent l\'inflation des services.',
+    note:'La BoE regarde autant la croissance des salaires que le taux de chômage pour calibrer sa politique. Un AWE (Average Weekly Earnings) au-dessus de 7% est incompatible avec une inflation à 2%.', noteType:'amber' },
+
+  { ticker:'UKPCLYOY', name:'Claimant Count', cat:'emploi', freq:'Mensuel', stars:2,
+    desc:'Nombre de personnes demandant des allocations chômage au Royaume-Uni. Publié avec le rapport emploi mensuel — indicateur haute fréquence du marché du travail.',
+    detail:'Plus réactif que le taux de chômage officiel car basé sur les données administratives en temps quasi-réel. Une hausse soudaine des demandeurs est un signal précoce de détérioration du marché de l\'emploi.',
+    note:'Indicateur plus fiable sur le court terme car basé sur des données réelles plutôt que sur une enquête.', noteType:'green' },
+
+  { ticker:'UKHBSAMM', name:'HBOS House Price Index', cat:'immobilier', freq:'Mensuel', stars:1,
+    desc:'Indice des prix de l\'immobilier résidentiel publié par Lloyds Banking Group (HBOS). L\'un des deux principaux indices immobiliers britanniques avec le Nationwide.',
+    detail:'L\'immobilier britannique est particulièrement sensible aux taux de la BoE car une grande partie des prêts sont à taux variable ou à révision courte. La crise de 2022-2023 avec des taux hypothécaires passant de 2% à 6% en 18 mois a créé un choc violent sur le marché.',
+    note:'Le marché immobilier londonien est un des plus exposés aux flux de capitaux internationaux — les prix reflètent autant la politique monétaire globale que la situation économique locale.', noteType:'blue' },
+
+  { ticker:'PMITMUK', name:'UK PMI Manufacturing', cat:'sentiment', freq:'Mensuel', stars:2,
+    desc:'PMI manufacturier britannique — l\'état du secteur industriel UK. Au-dessus de 50 = expansion.',
+    detail:'Le secteur manufacturier britannique a été affaibli par le Brexit (frictions douanières avec l\'UE) et par la crise énergétique. Publié par S&P Global.',
+    note:'Le Brexit a créé des barrières commerciales avec le principal marché du Royaume-Uni. Les PMIs manufacturiers UK sont structurellement plus faibles que leurs équivalents allemands ou français depuis 2020.', noteType:'amber' },
+
+  { ticker:'UKBRBASE', name:'BoE Base Rate', cat:'banquecentrale', freq:'8x/an', stars:3,
+    desc:'Le taux directeur de la Banque d\'Angleterre. Fixé par le Monetary Policy Committee (MPC) — 9 membres qui votent à chaque réunion.',
+    detail:'Contrairement à la Fed et la BCE, la BoE publie systématiquement le résultat des votes individuels. Un vote 7-2 (7 pour maintien, 2 pour hausse) est interprété différemment d\'un vote unanime. Ces nuances orientent les anticipations des marchés sur les prochaines décisions.',
+    note:'La transparence des votes de la BoE est une particularité qui donne aux marchés une lecture fine de la balance interne — et anticipe souvent les prochains mouvements.', noteType:'blue' },
+
+  { ticker:'BOE', name:'BoE MPC Minutes', cat:'banquecentrale', freq:'Lors de chaque réunion', stars:2,
+    desc:'Les minutes de la réunion du Monetary Policy Committee, publiées simultanément avec la décision de taux. Une particularité britannique — pas d\'attente de 3 semaines comme pour la Fed.',
+    detail:'La publication simultanée de la décision et des minutes donne immédiatement le contexte complet. Les dissidences de vote sont immédiatement visibles. La BoE publie aussi un Inflation Report trimestriel (Monetary Policy Report) avec ses prévisions d\'inflation et de croissance.',
+    note:'L\'Inflation Report trimestriel de la BoE est l\'un des documents les plus attendus des marchés obligataires européens.', noteType:'green' },
+],
+
+jp: [
+  { ticker:'JGDPQGDP', name:'Japan GDP', cat:'activite', freq:'Trimestriel', stars:3,
+    desc:'Le PIB japonais — troisième économie mondiale, avec une dynamique unique marquée par des décennies de faible croissance et de déflation.',
+    detail:'Le Japon a lutté contre la déflation (baisse des prix) pendant plus de 20 ans — l\'inverse du problème occidental. Le retour de l\'inflation en 2022-2023 est vu comme potentiellement positif par la BoJ. La croissance japonaise est très dépendante des exportations et donc du yen.',
+    note:'Un yen faible boost les exportations japonaises (Toyota, Sony, ASML...) et donc le GDP. La BoJ gérait en partie ses taux en fonction de l\'effet de change.', noteType:'amber' },
+
+  { ticker:'JNWRRTY', name:'Japan Retail Sales', cat:'activite', freq:'Mensuel', stars:2,
+    desc:'Ventes au détail au Japon — baromètre de la consommation intérieure. La consommation japonaise est traditionnellement faible en raison d\'une démographie vieillissante et d\'une culture de l\'épargne forte.',
+    detail:'Le Japon doit stimuler sa consommation intérieure pour réduire sa dépendance aux exportations. Les politiques de hausse de salaires (un objectif affiché du gouvernement Kishida) visent à relancer la consommation. Un retail sales fort est particulièrement bien accueilli au Japon.',
+    note:'La démographie japonaise (population en déclin, vieillissement) est un frein structurel à la consommation. C\'est un des grands défis de long terme de l\'économie japonaise.', noteType:'blue' },
+
+  { ticker:'JNIPMOM', name:'Industrial Production', cat:'activite', freq:'Mensuel', stars:3,
+    desc:'Production industrielle japonaise — très importante car le Japon est une grande puissance manufacturière (automobiles, électronique, machines).',
+    detail:'Très corrélée à la demande mondiale et au cycle des semi-conducteurs. Le Japon est un acteur majeur dans la chaîne de valeur technologique mondiale. Un ralentissement de la demande chinoise ou américaine impacte directement la production industrielle japonaise.',
+    note:'TSMC, Toyota, Sony, Fanuc — le tissu industriel japonais est au cœur des chaînes de valeur mondiales. Sa santé est un indicateur du commerce mondial.', noteType:'amber' },
+
+  { ticker:'JNCPIXFF', name:'Japan CPI (National)', cat:'inflation', freq:'Mensuel', stars:2,
+    desc:'L\'inflation japonaise au niveau national. Après des décennies de déflation, le retour de l\'inflation au Japon est un tournant historique pour la politique monétaire de la BoJ.',
+    detail:'La cible d\'inflation de la BoJ est 2% de façon <em>stable</em>. En 2023, le CPI japonais a atteint des niveaux records depuis les années 1980. La BoJ a interprété cela prudemment — voulant s\'assurer que cette inflation est durable avant de vraiment normaliser sa politique.',
+    note:'La distinction entre inflation "importée" (énergie, devise faible) et inflation "domestique" (salaires, services) est clé pour la BoJ. Seule la seconde justifie une normalisation durable.', noteType:'amber' },
+
+  { ticker:'JNCPTXFF', name:'Japan CPI (Tokyo)', cat:'inflation', freq:'Mensuel', stars:2,
+    desc:'L\'inflation dans la région de Tokyo, publiée avant le CPI national. Utilisée comme indicateur avancé de l\'inflation nationale à venir.',
+    detail:'Tokyo représente environ 30% du PIB japonais et son CPI est généralement en avance d\'environ 3-4 semaines sur le CPI national. Les marchés l\'utilisent pour anticiper la publication nationale.',
+    note:'Tokyo CPI fort un mois + attentes de normalisation BoJ = yen qui monte fortement. Un des schémas de trading les plus classiques sur JPY.', noteType:'green' },
+
+  { ticker:'JNUE', name:'Japan Unemployment Rate', cat:'emploi', freq:'Mensuel', stars:2,
+    desc:'Taux de chômage japonais. Structurellement très bas (~2.5%) en raison de la démographie et des pratiques d\'emploi à vie dans les grandes entreprises.',
+    detail:'Le chômage japonais ne descend quasiment jamais sous 2% ni ne monte au-dessus de 5% — même en récession. Moins informatif que dans d\'autres économies. La tension sur le marché du travail se lit mieux via les hausses de salaires (shunto — négociations salariales annuelles de printemps).',
+    note:'Le Shunto (négociations salariales de printemps) est le vrai indicateur du marché du travail japonais. En 2024, des hausses de salaires records ont confirmé le tournant inflationniste.', noteType:'blue' },
+
+  { ticker:'JNTSMFG', name:'Tankan Survey', cat:'sentiment', freq:'Trimestriel', stars:3,
+    desc:'L\'enquête trimestrielle de la BoJ auprès de ~10 000 entreprises japonaises. Le "Tankan" est l\'équivalent japonais de l\'ISM americain — l\'indicateur de sentiment le plus important du Japon.',
+    detail:'Publié 4 fois par an (début janvier, avril, juillet, octobre). L\'indice des "grandes entreprises manufacturières" est le plus suivi. Au-dessus de 0 = optimisme. En dessous = pessimisme. La BoJ en tient compte directement dans ses décisions de politique monétaire.',
+    note:'Un Tankan fort permet à la BoJ d\'être plus confiante dans la normalisation de sa politique. C\'est l\'un des déclencheurs potentiels de hausses de taux.', noteType:'amber' },
+
+  { ticker:'JNMOCHNG', name:'Machinery Orders', cat:'activite', freq:'Mensuel', stars:3,
+    desc:'Commandes de machines au Japon — indicateur avancé de l\'investissement des entreprises et de la demande industrielle mondiale à venir.',
+    detail:'Les entreprises japonaises commandent des machines quand elles anticipent une demande future forte. C\'est donc un excellent indicateur avancé de la confiance des entreprises dans l\'investissement. Très volatile d\'un mois à l\'autre — la tendance sur 3 mois est plus significative.',
+    note:'Les commandes de machines japonaises sont un baromètre de la demande industrielle mondiale — les machines japonaises équipent les usines du monde entier.', noteType:'green' },
+
+  { ticker:'JNSBALL I', name:'Small Business Confidence', cat:'sentiment', freq:'Mensuel', stars:1,
+    desc:'Indice de confiance des petites entreprises japonaises. Complémentaire du Tankan qui se concentre sur les grandes entreprises.',
+    detail:'Les PME représentent ~70% de l\'emploi au Japon. Leur santé est cruciale pour le marché du travail et la consommation. Cet indice capte des dynamiques différentes du Tankan — notamment dans les secteurs de services locaux et l\'artisanat.',
+    note:'Les petites entreprises japonaises sont plus exposées aux contraintes de main-d\'œuvre et moins aux marchés d\'exportation que les grandes.', noteType:'blue' },
+
+  { ticker:'BOJDTR', name:'BoJ Policy Rate', cat:'banquecentrale', freq:'Environ 8x/an', stars:3,
+    desc:'Le taux directeur de la Banque du Japon. Après des décennies de taux négatifs (-0.1%) et de Yield Curve Control (YCC), la BoJ a entamé une normalisation historique en 2024.',
+    detail:'La BoJ est la plus particulière des grandes banques centrales : elle a maintenu des taux négatifs jusqu\'en 2024, et a pratiqué le YCC (plafonnement du rendement des obligations 10 ans) pour contrôler toute la courbe des taux. Chaque changement de politique crée des chocs violents sur le yen et les carry trades mondiaux.',
+    note:'Août 2024 : la BoJ relève ses taux de façon inattendue. Le yen s\'apprécie violemment. Les carry trades (emprunt en JPY pour investir ailleurs) se débouclent en masse. Le Nikkei plonge de -12% en un jour. La puissance des effets BoJ sur les marchés mondiaux.', noteType:'amber' },
+],
+
+cn: [
+  { ticker:'CNGDPYOY', name:'China GDP', cat:'activite', freq:'Trimestriel', stars:3,
+    desc:'Le PIB chinois — deuxième économie mondiale. La Chine cible officiellement une croissance d\'environ 5% par an. Sa publication est scrutée car elle conditionne la demande mondiale en matières premières et biens industriels.',
+    detail:'La fiabilité des statistiques chinoises est souvent questionnée par les économistes — des indicateurs alternatifs (consommation d\'électricité, transport de fret, données satellitaires) sont utilisés pour recouper les chiffres officiels. La composition de la croissance (consommation vs investissement vs exportations) importe autant que le niveau.',
+    note:'Quand la Chine ralentit, les matières premières baissent (pétrole, cuivre, minerai de fer), les marchés émergents souffrent, et les exportateurs européens et japonais voient leur demande diminuer.', noteType:'amber' },
+
+  { ticker:'CNRSCYOY', name:'China Retail Sales', cat:'activite', freq:'Mensuel', stars:2,
+    desc:'Ventes au détail en Chine — le baromètre de la consommation des ménages chinois. Clé pour évaluer la transition de la Chine vers une économie davantage orientée consommation.',
+    detail:'La Chine cherche à rééquilibrer son économie de l\'investissement (immobilier, infrastructure) vers la consommation. Le retail sales est donc un indicateur crucial de ce pivot structurel. Post-Covid, la reprise de la consommation a été décevante — la confiance des ménages a été durablement affectée par la crise immobilière.',
+    note:'La crise immobilière chinoise (Evergrande, Country Garden...) a créé un "effet richesse négatif" : les ménages qui voient leur principal actif (le logement) perdre de la valeur consomment moins.', noteType:'amber' },
+
+  { ticker:'CHVAIOY', name:'Industrial Production China', cat:'activite', freq:'Mensuel', stars:3,
+    desc:'Production industrielle chinoise — la Chine est l\'usine du monde. Cet indicateur conditionne directement la demande en matières premières, en énergie et les flux commerciaux mondiaux.',
+    detail:'La production industrielle chinoise est un baromètre des chaînes d\'approvisionnement mondiales. Une accélération => demande de pétrole, cuivre, acier en hausse. Un ralentissement => pression sur les matières premières. Très corrélé au PMI Manufacturing.',
+    note:'La surcapacité industrielle chinoise dans certains secteurs (acier, solaire, véhicules électriques) est une source de tensions commerciales mondiales — les exportations chinoises à bas prix menacent les industries locales en Europe et aux USA.', noteType:'amber' },
+
+  { ticker:'CNFRBALS', name:'China Trade Balance', cat:'activite', freq:'Mensuel', stars:3,
+    desc:'La balance commerciale chinoise — différence entre exportations et importations. La Chine a des excédents commerciaux records, source de tensions diplomatiques mondiales.',
+    detail:'Un excédent commercial chinois fort = la Chine exporte beaucoup (manufactures) et importe peu (consommation intérieure faible). Cela génère des tensions avec les États-Unis et l\'Europe qui accusent la Chine de concurrence déloyale et de surcapacité exportée.',
+    note:'En 2024, l\'excédent commercial chinois a atteint des records historiques — source de nouvelles tensions tarifaires avec les USA et l\'UE sur les véhicules électriques, les panneaux solaires, l\'acier.', noteType:'amber' },
+
+  { ticker:'CNCPIYOY', name:'China CPI', cat:'inflation', freq:'Mensuel', stars:3,
+    desc:'L\'inflation à la consommation en Chine. Paradoxalement très basse — parfois négative — alors que le monde occidental luttait contre l\'inflation post-Covid.',
+    detail:'La Chine a lutté contre la <strong>déflation</strong> en 2023-2024, pas l\'inflation. Des prix qui baissent en Chine signifient que les entreprises chinoises exportent de la désinflation au reste du monde via leurs prix d\'export. C\'est une force désinflationniste globale — et une source de tension commerciale.',
+    note:'La déflation chinoise est exportée via les prix des biens manufacturés. Elle a aidé à contenir l\'inflation en Europe et aux USA — mais au prix de tensions commerciales sur les surcapacités.', noteType:'blue' },
+
+  { ticker:'CHEFTYOY', name:'China PPI', cat:'inflation', freq:'Mensuel', stars:1,
+    desc:'Prix à la production en Chine. Très regardé comme indicateur de l\'inflation importée pour le reste du monde — la Chine exporte des biens manufacturés dont les prix influencent l\'inflation mondiale.',
+    detail:'Un PPI chinois négatif = les usines chinoises baissent leurs prix = déflation exportée. Un PPI chinois très positif = risque de hausse des prix à l\'import pour l\'Europe et les USA. En 2021-2022, le PPI chinois avait fortement contribué à l\'inflation mondiale post-Covid.',
+    note:'Le PPI chinois est un "upstream indicator" de l\'inflation mondiale — les chocs de prix se propagent de la fabrique au consommateur final en passant par les chaînes logistiques mondiales.', noteType:'blue' },
+
+  { ticker:'CPMINDX', name:'PMI Manufacturing China (Officiel)', cat:'sentiment', freq:'Mensuel', stars:2,
+    desc:'PMI manufacturier officiel chinois, publié par le Bureau national des statistiques. Au-dessus de 50 = expansion. Mais souvent moins crédible que le Caixin PMI.',
+    detail:'Publié le dernier jour du mois — le premier PMI manufacturing mondial. Basé sur des entreprises plutôt grandes et publiques. Au-dessus de 50 = expansion. En dessous = contraction. Les marchés le comparent immédiatement au Caixin PMI (entreprises privées et plus petites) pour avoir une image complète.',
+    note:'La divergence entre PMI officiel et Caixin PMI est souvent révélatrice : le PMI officiel (grandes entreprises d\'État) peut être positif alors que le Caixin (PMEs privées) est négatif.', noteType:'green' },
+
+  { ticker:'CAIXIN', name:'Caixin PMI Manufacturing', cat:'sentiment', freq:'Mensuel', stars:3,
+    desc:'PMI manufacturier privé chinois publié par Caixin/S&P Global. Considéré comme plus fiable que le PMI officiel car basé sur des entreprises privées plus représentatives de la dynamique réelle.',
+    detail:'Publié le premier jour du mois suivant. Davantage orienté vers les PMEs et les entreprises privées. En cas de divergence avec le PMI officiel, les marchés ont tendance à faire davantage confiance au Caixin pour lire la dynamique réelle de l\'économie.',
+    note:'La Chine est souvent le premier grand pays à publier son PMI du mois — ce qui en fait un signal avancé pour le cycle manufacturier mondial.', noteType:'green' },
+
+  { ticker:'NI CHCNG', name:'National Peoples Congress', cat:'banquecentrale', freq:'Annuel (mars)', stars:2,
+    desc:'L\'Assemblée Nationale Populaire — le parlement chinois — fixe chaque mars les grandes orientations économiques, notamment la cible de croissance officielle et les grands projets de stimulus.',
+    detail:'La réunion annuelle de l\'ANP en mars est un événement de marché majeur. L\'annonce de la cible de croissance (ex: "environ 5%") et des plans de stimulus budgétaire oriente les anticipations sur les commodities, les actifs émergents et les exportateurs de matières premières.',
+    note:'Quand la Chine annonce un plan de stimulus massif, les marchés des matières premières (cuivre, minerai de fer, pétrole) rebondissent immédiatement — la Chine est le premier consommateur mondial de la plupart des commodités.', noteType:'amber' },
+
+  { ticker:'CHLR12M', name:'PBoC Lending Rate (LPR)', cat:'banquecentrale', freq:'Mensuel', stars:2,
+    desc:'Le taux de prêt de référence de la Banque Populaire de Chine — l\'équivalent du taux directeur pour les prêts aux entreprises et ménages chinois.',
+    detail:'La PBoC utilise le Loan Prime Rate (LPR) à 1 an et à 5 ans. Le LPR à 5 ans est particulièrement important car il influence les taux hypothécaires. Des baisses du LPR visent à relancer le crédit et l\'investissement — notamment dans l\'immobilier en crise.',
+    note:'La PBoC est moins indépendante et moins transparente que la Fed ou la BCE. Ses décisions sont souvent coordonnées avec les priorités du Parti Communiste Chinois.', noteType:'blue' },
+],
+
+};
+
+/* ══════════════════════════════════════
+   RENDER
+══════════════════════════════════════ */
+function stars(n) {
+  return '★'.repeat(n) + '☆'.repeat(3-n);
+}
+
+function renderGrid(country, cat) {
+  const grid = document.getElementById(`grid-${country}`);
+  const items = DATA[country].filter(d => cat === 'all' || d.cat === cat);
+  grid.innerHTML = items.map((d,i) => `
+    <div class="ind-card" id="card-${country}-${i}">
+      <div class="ind-card-top" onclick="toggleCard('${country}',${i})">
+        <div class="ind-left">
+          <div class="ind-ticker">${d.ticker}</div>
+          <div class="ind-name">${d.name}</div>
+          <span class="cat-badge">${d.cat}</span>
+        </div>
+        <div class="ind-right">
+          <div class="ind-stars">${stars(d.stars)}</div>
+          <div class="ind-freq">${d.freq}</div>
+          <div class="ind-arrow">▾</div>
+        </div>
+      </div>
+      <div class="ind-body">
+        <div class="ind-meta-row">
+          <div class="ind-meta-item">
+            <span class="ind-meta-label">Bloomberg</span>
+            <span class="ind-meta-val">${d.ticker}</span>
+          </div>
+          <div class="ind-meta-item">
+            <span class="ind-meta-label">Fréquence</span>
+            <span class="ind-meta-val">${d.freq}</span>
+          </div>
+          <div class="ind-meta-item">
+            <span class="ind-meta-label">Importance</span>
+            <span class="ind-meta-val" style="color:var(--amber);font-family:sans-serif;">${stars(d.stars)}</span>
+          </div>
+        </div>
+        <p>${d.desc}</p>
+        <p>${d.detail}</p>
+        ${d.note ? `<div class="callout-mini callout-mini-${d.noteType||'green'}"><p>${d.note}</p></div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleCard(country, i) {
+  const card = document.getElementById(`card-${country}-${i}`);
+  card.classList.toggle('open');
+}
+
+/* Country switching */
+document.querySelectorAll('.country-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.country-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.country-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    const c = btn.dataset.country;
+    document.getElementById(`panel-${c}`).classList.add('active');
+    resetFilter(c);
+  });
+});
+
+/* Category filtering */
+function setupFilter(country) {
+  const filterDiv = document.getElementById(`filter-${country}`);
+  if (!filterDiv) return;
+  filterDiv.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterDiv.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderGrid(country, btn.dataset.cat);
+    });
+  });
+}
+
+function resetFilter(country) {
+  const filterDiv = document.getElementById(`filter-${country}`);
+  if (filterDiv) {
+    filterDiv.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    filterDiv.querySelector('[data-cat="all"]').classList.add('active');
+  }
+  renderGrid(country, 'all');
+}
+
+/* Init */
+['us','eu','uk','jp','cn'].forEach(c => {
+  renderGrid(c, 'all');
+  setupFilter(c);
+});
+</script>
+</body>
+</html>
