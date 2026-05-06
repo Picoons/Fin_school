@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Les banques centrales — Finance Accessible</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:         #ffffff;
+  --bg-card:    #f5f5f5;
+  --bg-card2:   #eeeeee;
+  --border:     rgba(0,0,0,0.08);
+  --border-md:  rgba(0,0,0,0.13);
+  --text:       #0a0a0a;
+  --text-muted: #555;
+  --text-faint: #999;
+  --green:      #00a85a;
+  --green-soft: rgba(0,168,90,0.08);
+  --red:        #e8203a;
+  --red-soft:   rgba(232,32,58,0.07);
+  --blue:       #2563eb;
+  --blue-soft:  rgba(37,99,235,0.07);
+  --amber:      #d97706;
+  --amber-soft: rgba(217,119,6,0.07);
+  --purple:     #7c3aed;
+  --purple-soft:rgba(124,58,237,0.07);
+  --toggle-bg:  #e8e8e8;
+  --toggle-knob:#fff;
+}
+
+[data-theme="dark"] {
+  --bg:         #0d0d0d;
+  --bg-card:    #141414;
+  --bg-card2:   #1c1c1c;
+  --border:     rgba(255,255,255,0.07);
+  --border-md:  rgba(255,255,255,0.14);
+  --text:       #f0f0f0;
+  --text-muted: #888;
+  --text-faint: #444;
+  --green:      #00c076;
+  --green-soft: rgba(0,192,118,0.10);
+  --red:        #f03349;
+  --red-soft:   rgba(240,51,73,0.10);
+  --blue:       #60a5fa;
+  --blue-soft:  rgba(96,165,250,0.10);
+  --amber:      #fbbf24;
+  --amber-soft: rgba(251,191,36,0.10);
+  --purple:     #a78bfa;
+  --purple-soft:rgba(167,139,250,0.10);
+  --toggle-bg:  #2a2a2a;
+  --toggle-knob:#f0f0f0;
+}
+
+html, body {
+  background: var(--bg); color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.2s, color 0.2s;
+}
+body { max-width: 1000px; margin: 0 auto; padding: 0 1.5rem 6rem; }
+
+nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 0; border-bottom: 1px solid var(--border); margin-bottom: 3rem;
+}
+.nav-logo { font-size: 0.95rem; font-weight: 700; color: var(--text); text-decoration: none; letter-spacing: -0.02em; }
+.nav-links { display: flex; gap: 1.5rem; }
+.nav-links a { font-size: 0.8rem; color: var(--text-faint); text-decoration: none; transition: color 0.15s; }
+.nav-links a:hover { color: var(--text); }
+.toggle-wrap { display: flex; align-items: center; gap: 0.5rem; }
+.toggle-label { font-size: 0.72rem; color: var(--text-faint); user-select: none; }
+.toggle {
+  position: relative; width: 36px; height: 20px;
+  background: var(--toggle-bg); border-radius: 100px; cursor: pointer;
+  border: 1px solid var(--border-md); transition: background 0.2s; flex-shrink: 0;
+}
+.toggle::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 14px; height: 14px; background: var(--toggle-knob);
+  border-radius: 50%; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+[data-theme="dark"] .toggle::after { transform: translateX(16px); }
+[data-theme="dark"] .toggle { background: #333; }
+
+.hero { margin-bottom: 2.5rem; }
+.hero-meta { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+.tag {
+  font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border-md);
+  color: var(--text-muted); background: var(--bg-card);
+}
+.tag-blue   { border-color: var(--blue);   color: var(--blue);   background: var(--blue-soft); }
+.tag-purple { border-color: var(--purple); color: var(--purple); background: var(--purple-soft); }
+.hero-time { font-size: 0.78rem; color: var(--text-faint); }
+
+h1 {
+  font-size: clamp(1.9rem, 4vw, 2.8rem); font-weight: 700;
+  letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 0.75rem; color: var(--text);
+}
+.hero-sub { font-size: 0.92rem; color: var(--text-muted); max-width: 600px; line-height: 1.65; }
+
+.intro-note {
+  border: 1px solid var(--border-md); border-left: 3px solid var(--text-faint);
+  background: var(--bg-card); border-radius: 0 6px 6px 0;
+  padding: 1rem 1.25rem; margin-bottom: 3rem;
+}
+.intro-note p { font-size: 0.85rem; color: var(--text-muted); margin: 0; line-height: 1.7; font-style: italic; }
+
+.toc {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 3.5rem;
+}
+.toc-item {
+  background: var(--bg-card); padding: 0.75rem 1rem;
+  display: flex; align-items: center; gap: 0.6rem;
+  text-decoration: none; transition: background 0.15s;
+}
+.toc-item:hover { background: var(--bg-card2); }
+.toc-num { font-size: 0.65rem; color: var(--text-faint); font-weight: 600; min-width: 16px; }
+.toc-label { font-size: 0.78rem; color: var(--text-muted); }
+
+.section { margin-bottom: 4.5rem; scroll-margin-top: 2rem; }
+.section-header {
+  display: flex; align-items: baseline; gap: 0.75rem;
+  margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border);
+}
+.section-num { font-size: 0.7rem; color: var(--text-faint); font-weight: 600; }
+h2 { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
+.section-type { margin-left: auto; font-size: 0.68rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.08em; }
+
+.layout-2col {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem;
+}
+.col-block { background: var(--bg); padding: 1.25rem; }
+
+.layout-full { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
+.full-block { background: var(--bg); padding: 1.25rem; }
+
+p { font-size: 0.875rem; line-height: 1.8; color: var(--text-muted); margin-bottom: 0.75rem; }
+p:last-child { margin-bottom: 0; }
+p strong { color: var(--text); font-weight: 600; }
+p em { font-style: italic; }
+
+.callout {
+  border-left: 2px solid var(--green); padding: 0.75rem 1rem;
+  background: var(--green-soft); border-radius: 0 6px 6px 0; margin: 1rem 0;
+}
+.callout p { color: var(--green); font-size: 0.82rem; }
+.callout-blue   { border-left-color: var(--blue);   background: var(--blue-soft); }
+.callout-blue p { color: var(--blue); }
+.callout-amber   { border-left-color: var(--amber);  background: var(--amber-soft); }
+.callout-amber p { color: var(--amber); }
+.callout-red     { border-left-color: var(--red);    background: var(--red-soft); }
+.callout-red p   { color: var(--red); }
+.callout-purple  { border-left-color: var(--purple); background: var(--purple-soft); }
+.callout-purple p { color: var(--purple); }
+
+.meta-label { font-size: 0.68rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.6rem; display: block; }
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+.cb-card {
+  background: var(--bg-card); border-radius: 8px; padding: 1rem 1.1rem;
+  border: 1px solid var(--border); margin-bottom: 0.5rem;
+}
+.cb-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.4rem; gap: 0.5rem; }
+.cb-card-name { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+.cb-card-body { font-size: 0.78rem; color: var(--text-muted); line-height: 1.6; }
+.cb-card-zone { font-size: 0.68rem; color: var(--text-faint); white-space: nowrap; margin-top: 2px; }
+
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th {
+  font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-faint); font-weight: 600; padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border); text-align: left;
+}
+.data-table td {
+  font-size: 0.82rem; padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border); color: var(--text-muted); vertical-align: middle;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table td strong { color: var(--text); font-weight: 600; }
+
+.bottom {
+  border-top: 1px solid var(--border); padding-top: 2rem; margin-top: 4rem;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 2rem;
+}
+.bottom h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.bottom p { font-size: 0.82rem; color: var(--text-faint); }
+.bottom-link {
+  font-size: 0.78rem; color: var(--text-muted); text-decoration: none;
+  border: 1px solid var(--border-md); padding: 6px 14px; border-radius: 6px;
+  white-space: nowrap; background: var(--bg-card); transition: all 0.15s;
+}
+.bottom-link:hover { color: var(--text); background: var(--bg-card2); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">Finance Accessible</a>
+  <div class="nav-links">
+    <a href="LASTtypes-graphiques-v4.html">Graphiques</a>
+    <a href="tickers-marches.html">Marchés</a>
+    <a href="classes-actifs.html">Actifs</a>
+  </div>
+  <div class="toggle-wrap">
+    <span class="toggle-label" id="toggle-lbl">Light</span>
+    <div class="toggle" id="themeToggle" role="switch" aria-checked="false" tabindex="0"></div>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-meta">
+    <span class="tag tag-purple">Macro</span>
+    <span class="tag tag-blue">Taux</span>
+    <span class="hero-time">12 min de lecture</span>
+  </div>
+  <h1>Les banques centrales</h1>
+  <p class="hero-sub">BCE, Fed, BoJ — ces trois institutions fixent les taux d'intérêt qui pilotent l'ensemble des marchés financiers mondiaux. Comprendre leur logique, c'est comprendre pourquoi les marchés bougent.</p>
+</div>
+
+<div class="intro-note">
+  <p>Les banques centrales sont les acteurs les plus puissants des marchés financiers — plus encore que les plus grands fonds ou les plus grandes entreprises. Chaque décision de taux fait bouger obligations, actions, devises et matières premières simultanément, partout dans le monde.</p>
+</div>
+
+<div class="toc">
+  <a class="toc-item" href="#role"><span class="toc-num">01</span><span class="toc-label">Le rôle d'une banque centrale</span></a>
+  <a class="toc-item" href="#grandes"><span class="toc-num">02</span><span class="toc-label">Les grandes banques centrales</span></a>
+  <a class="toc-item" href="#taux"><span class="toc-num">03</span><span class="toc-label">Les taux directeurs</span></a>
+  <a class="toc-item" href="#transmission"><span class="toc-num">04</span><span class="toc-label">La transmission aux marchés</span></a>
+  <a class="toc-item" href="#qe"><span class="toc-num">05</span><span class="toc-label">QE & QT</span></a>
+  <a class="toc-item" href="#cycles"><span class="toc-num">06</span><span class="toc-label">Cycles de taux</span></a>
+  <a class="toc-item" href="#lire"><span class="toc-num">07</span><span class="toc-label">Lire une décision de taux</span></a>
+  <a class="toc-item" href="#divergence"><span class="toc-num">08</span><span class="toc-label">Divergence de politiques</span></a>
+</div>
+
+<!-- ─── 01 RÔLE ─── -->
+<div class="section" id="role">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <h2>Le rôle d'une banque centrale</h2>
+    <span class="section-type">Fondamental · Institution</span>
+  </div>
+  <div class="layout-2col">
+    <div class="col-block">
+      <p>Une banque centrale est une institution publique qui gère la <strong>politique monétaire</strong> d'une zone économique. Elle n'est pas une banque commerciale — vous ne pouvez pas y ouvrir un compte. Elle opère en arrière-plan, mais ses décisions affectent chaque emprunt, chaque épargne, chaque investissement.</p>
+      <p>Sa mission principale varie selon les institutions, mais tourne autour de deux grands objectifs : la <strong>stabilité des prix</strong> (contrôler l'inflation) et la <strong>stabilité financière</strong> (éviter les crises systémiques). La Fed américaine ajoute un troisième objectif explicite : le plein emploi.</p>
+      <p>Son outil principal : les <strong>taux d'intérêt directeurs</strong> — le prix auquel elle prête de l'argent aux banques commerciales. En ajustant ce taux, elle influence le coût de l'argent dans toute l'économie.</p>
+      <div class="callout callout-blue">
+        <p><strong>L'indépendance :</strong> les banques centrales sont indépendantes des gouvernements — en théorie. Cette indépendance est fondamentale pour que les décisions de taux soient guidées par l'économie, pas par des échéances électorales.</p>
+      </div>
+    </div>
+    <div class="col-block">
+      <span class="meta-label">Ce qu'une banque centrale contrôle — et ce qu'elle ne contrôle pas</span>
+      <div style="display:flex;flex-direction:column;gap:0.5rem;margin-top:0.25rem;">
+        <div class="cb-card">
+          <div class="cb-card-header"><span class="cb-card-name">✓ Taux directeurs</span></div>
+          <div class="cb-card-body">Le taux auquel elle prête aux banques. C'est le levier principal. Tout le reste découle de là.</div>
+        </div>
+        <div class="cb-card">
+          <div class="cb-card-header"><span class="cb-card-name">✓ Masse monétaire</span></div>
+          <div class="cb-card-body">Elle peut créer de la monnaie (QE) ou la retirer (QT) en achetant ou vendant des actifs sur le marché.</div>
+        </div>
+        <div class="cb-card">
+          <div class="cb-card-header"><span class="cb-card-name">✓ Communication (forward guidance)</span></div>
+          <div class="cb-card-body">Ce qu'elle dit sur ses intentions futures déplace les marchés autant — voire plus — que ses actes réels.</div>
+        </div>
+        <div class="cb-card" style="border-color:var(--red);background:var(--red-soft);">
+          <div class="cb-card-header"><span class="cb-card-name" style="color:var(--red);">✗ L'inflation directement</span></div>
+          <div class="cb-card-body" style="color:var(--text-muted);">Elle influence l'inflation via les taux, mais ne la contrôle pas directement. Les chocs d'offre (énergie, chaînes d'approvisionnement) lui échappent complètement.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 02 GRANDES BANQUES CENTRALES ─── -->
+<div class="section" id="grandes">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <h2>Les grandes banques centrales</h2>
+    <span class="section-type">Institutions · Mondial</span>
+  </div>
+  <div class="layout-2col" style="margin-bottom:1rem;">
+    <div class="col-block">
+      <p>Il existe des dizaines de banques centrales dans le monde — une par pays ou zone monétaire. Mais certaines ont une influence qui dépasse largement leurs frontières. La <strong>Fed</strong> américaine est de loin la plus surveillée : le dollar étant la monnaie de réserve mondiale, ses décisions se répercutent partout.</p>
+      <p>La <strong>BCE</strong> gère la zone euro — 20 pays, des économies très hétérogènes, un seul taux. La <strong>BoJ</strong> japonaise est connue pour sa politique ultra-accommodante qui a duré des décennies et créé des dynamiques de marché uniques, notamment sur le yen et le carry trade.</p>
+    </div>
+    <div class="col-block">
+      <div class="callout callout-amber">
+        <p><strong>Pourquoi la Fed domine :</strong> le dollar représente environ 60% des réserves de change mondiales. Quand la Fed monte ses taux, les capitaux affluent vers les actifs en dollar — ce qui affecte les devises, les obligations et les marchés actions du monde entier, y compris des pays émergents qui n'ont rien à voir avec l'économie américaine.</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:0.5rem;">
+    <div class="cb-card">
+      <div class="cb-card-header">
+        <div>
+          <div class="cb-card-name">🇺🇸 Federal Reserve — Fed</div>
+          <div class="cb-card-zone">États-Unis · Dollar (USD)</div>
+        </div>
+        <span class="tag tag-blue">La plus influente</span>
+      </div>
+      <div class="cb-card-body">Mandat dual : stabilité des prix + plein emploi. Se réunit 8 fois par an (FOMC). Décision publiée + conférence de presse du président (Jerome Powell jusqu'en 2026). Le taux cible est le Fed Funds Rate.</div>
+    </div>
+    <div class="cb-card">
+      <div class="cb-card-header">
+        <div>
+          <div class="cb-card-name">🇪🇺 Banque Centrale Européenne — BCE</div>
+          <div class="cb-card-zone">Zone euro (20 pays) · Euro (EUR)</div>
+        </div>
+      </div>
+      <div class="cb-card-body">Mandat principal : stabilité des prix (cible d'inflation à 2%). Se réunit 8 fois par an. Présidée par Christine Lagarde. Défi structurel : gérer un seul taux pour des économies très différentes (Allemagne, Grèce, France...).</div>
+    </div>
+    <div class="cb-card">
+      <div class="cb-card-header">
+        <div>
+          <div class="cb-card-name">🇯🇵 Bank of Japan — BoJ</div>
+          <div class="cb-card-zone">Japon · Yen (JPY)</div>
+        </div>
+      </div>
+      <div class="cb-card-body">Connue pour des décennies de taux négatifs et de QE massif pour lutter contre la déflation. Le yen est au cœur du carry trade mondial — emprunter en JPY (taux bas) pour investir ailleurs. Tout changement de cap crée des chocs violents sur les marchés globaux.</div>
+    </div>
+    <div class="cb-card">
+      <div class="cb-card-header">
+        <div>
+          <div class="cb-card-name">🇬🇧 Bank of England — BoE</div>
+          <div class="cb-card-zone">Royaume-Uni · Livre sterling (GBP)</div>
+        </div>
+      </div>
+      <div class="cb-card-body">La plus ancienne banque centrale moderne (fondée en 1694). Cible d'inflation à 2%. Très scrutée depuis le Brexit pour ses interactions entre politique monétaire et instabilité fiscale britannique.</div>
+    </div>
+    <div class="cb-card">
+      <div class="cb-card-header">
+        <div>
+          <div class="cb-card-name">🇨🇭 Banque Nationale Suisse — BNS</div>
+          <div class="cb-card-zone">Suisse · Franc suisse (CHF)</div>
+        </div>
+      </div>
+      <div class="cb-card-body">Petite économie, grande influence : le CHF est une valeur refuge mondiale. La BNS intervient directement sur le marché des changes pour éviter une appréciation excessive du franc — ce qui en fait l'une des banques centrales les plus actives sur le Forex.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 03 TAUX DIRECTEURS ─── -->
+<div class="section" id="taux">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <h2>Les taux directeurs</h2>
+    <span class="section-type">Mécanisme · Clé de voûte</span>
+  </div>
+  <div class="layout-2col">
+    <div class="col-block">
+      <p>Le taux directeur, c'est le <strong>prix auquel la banque centrale prête de l'argent aux banques commerciales</strong> au jour le jour. C'est le coût de la liquidité de base dans l'économie — tout le reste en découle par cascade.</p>
+      <p>Quand ce taux monte, emprunter devient plus cher pour les banques, qui répercutent sur les entreprises et les ménages. Les crédits immobiliers, les prêts aux entreprises, les marges de crédit — tout devient plus cher. L'économie ralentit, la demande baisse, et l'inflation recule.</p>
+      <p>Quand ce taux baisse, l'inverse se produit : l'argent est moins cher, les ménages empruntent plus, les entreprises investissent plus, l'économie s'emballe — et l'inflation peut repartir.</p>
+      <div class="callout callout-purple">
+        <p><strong>Les "bps" :</strong> les hausses et baisses de taux se mesurent en points de base (bps). 1 point de base = 0,01%. Une hausse de 25 bps = +0,25%. Une hausse de 75 bps ("jumbo hike") est une décision agressive, rare — la Fed en a fait plusieurs en 2022.</p>
+      </div>
+    </div>
+    <div class="col-block">
+      <span class="meta-label">Taux directeurs principaux — simulés à titre illustratif</span>
+      <div style="position:relative;height:220px;">
+        <canvas id="ratesChart" role="img" aria-label="Graphique des taux directeurs simulés">Données simulées.</canvas>
+      </div>
+      <div style="display:flex;gap:1rem;margin-top:0.6rem;flex-wrap:wrap;">
+        <span style="display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--text-faint)"><span style="width:18px;height:2px;background:#3b82f6;display:inline-block;"></span>Fed Funds Rate</span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--text-faint)"><span style="width:18px;height:2px;background:#f59e0b;display:inline-block;"></span>BCE Refi Rate</span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--text-faint)"><span style="width:18px;height:2px;background:#a78bfa;display:inline-block;border-top:1px dashed"></span>BoJ Policy Rate</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 04 TRANSMISSION ─── -->
+<div class="section" id="transmission">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <h2>La transmission aux marchés</h2>
+    <span class="section-type">Impact · Tous actifs</span>
+  </div>
+  <div class="layout-2col" style="margin-bottom:1rem;">
+    <div class="col-block">
+      <p>Une décision de taux ne reste pas dans l'abstrait — elle se propage à travers toute l'économie et tous les marchés financiers en quelques secondes pour les actifs cotés, et en quelques mois pour l'économie réelle.</p>
+      <p>Le canal le plus direct : les <strong>obligations</strong>. Les taux directeurs ancrent les taux courts, qui influencent toute la courbe des taux. Une hausse des taux fait mécaniquement baisser le prix des obligations existantes.</p>
+      <p>Le canal actions est moins direct mais tout aussi puissant. Des taux plus élevés signifient que les flux futurs des entreprises sont actualisés à un taux plus élevé — ce qui réduit leur valeur présente. Et que les obligations deviennent plus attractives relativement aux actions.</p>
+    </div>
+    <div class="col-block">
+      <p>Les <strong>devises</strong> réagissent aussi immédiatement : des taux plus élevés attirent les capitaux étrangers qui cherchent du rendement, ce qui apprécie la devise. C'est pourquoi le dollar monte généralement quand la Fed monte ses taux.</p>
+      <p>Enfin, l'<strong>immobilier</strong> est l'actif le plus sensible sur l'économie réelle : les taux hypothécaires suivent directement les taux directeurs. La crise immobilière de 2022-2023 dans de nombreux pays a été directement causée par le cycle de hausse des banques centrales.</p>
+    </div>
+  </div>
+
+  <div class="layout-full">
+    <div class="full-block">
+      <span class="meta-label">Impact d'une hausse de taux sur les différents actifs</span>
+      <table class="data-table">
+        <thead>
+          <tr><th>Actif</th><th>Réaction immédiate</th><th>Mécanisme</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Obligations (prix)</strong></td>
+            <td style="color:var(--red);">↓ Baisse</td>
+            <td>Les nouvelles obligations offrent plus — les anciennes perdent de la valeur</td>
+          </tr>
+          <tr>
+            <td><strong>Actions</strong></td>
+            <td style="color:var(--red);">↓ Tend à baisser</td>
+            <td>Actualisation des flux futurs à taux plus élevé + concurrence des obligations</td>
+          </tr>
+          <tr>
+            <td><strong>Actions value</strong></td>
+            <td style="color:var(--amber);">~ Moins affectées</td>
+            <td>Flux proches dans le temps — moins sensibles à l'actualisation</td>
+          </tr>
+          <tr>
+            <td><strong>Actions growth / tech</strong></td>
+            <td style="color:var(--red);">↓↓ Très impactées</td>
+            <td>Flux attendus loin dans le futur — fortement actualisés</td>
+          </tr>
+          <tr>
+            <td><strong>Devises (pays qui monte)</strong></td>
+            <td style="color:var(--green);">↑ Apprécie</td>
+            <td>Les capitaux étrangers affluent pour profiter du rendement plus élevé</td>
+          </tr>
+          <tr>
+            <td><strong>Or</strong></td>
+            <td style="color:var(--red);">↓ Tend à baisser</td>
+            <td>L'or ne verse pas d'intérêts — moins attractif quand les taux montent</td>
+          </tr>
+          <tr>
+            <td><strong>Immobilier</strong></td>
+            <td style="color:var(--red);">↓ Baisse (différé)</td>
+            <td>Taux hypothécaires plus élevés — moins d'acheteurs, prix sous pression</td>
+          </tr>
+          <tr>
+            <td><strong>Crypto</strong></td>
+            <td style="color:var(--red);">↓ Tend à baisser</td>
+            <td>Actif risqué sans flux — fuite vers les actifs sans risque qui rapportent</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 05 QE / QT ─── -->
+<div class="section" id="qe">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <h2>QE & QT — quand les taux ne suffisent plus</h2>
+    <span class="section-type">Outils non-conventionnels</span>
+  </div>
+  <div class="layout-2col">
+    <div class="col-block">
+      <p>Quand les taux directeurs sont déjà à zéro et que l'économie a encore besoin de stimulus, les banques centrales sortent des outils non-conventionnels. Le principal : le <strong>Quantitative Easing (QE)</strong> — l'assouplissement quantitatif.</p>
+      <p>Concrètement, la banque centrale <strong>crée de la monnaie</strong> et l'utilise pour acheter des actifs sur le marché — principalement des obligations d'État, parfois des obligations d'entreprises. Cela injecte des liquidités dans le système, fait monter le prix des actifs achetés, et pousse les investisseurs vers des actifs plus risqués.</p>
+      <p>Le <strong>Quantitative Tightening (QT)</strong> est l'inverse : la banque centrale laisse ses actifs arriver à maturité sans les renouveler, ou les vend activement. Elle retire de la liquidité du système — ce qui a l'effet inverse sur les marchés.</p>
+      <div class="callout callout-red">
+        <p><strong>Attention à la confusion :</strong> le QE n'est pas "faire tourner la planche à billets" au sens classique. La monnaie créée va aux banques (réserves), pas directement dans l'économie réelle. Mais l'effet sur les prix d'actifs est bien réel et massif.</p>
+      </div>
+    </div>
+    <div class="col-block">
+      <span class="meta-label">QE vs QT — l'effet sur les bilans</span>
+      <div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:0.25rem;">
+        <div class="cb-card" style="border-color:var(--green);background:var(--green-soft);">
+          <div class="cb-card-name" style="color:var(--green);margin-bottom:0.5rem;">Quantitative Easing (QE)</div>
+          <div style="display:flex;flex-direction:column;gap:0.3rem;">
+            <div style="font-size:0.78rem;color:var(--text-muted);">↳ Banque centrale crée de la monnaie</div>
+            <div style="font-size:0.78rem;color:var(--text-muted);">↳ Achète des obligations sur le marché</div>
+            <div style="font-size:0.78rem;color:var(--text-muted);">↳ Prix des obligations ↑ · Taux longs ↓</div>
+            <div style="font-size:0.78rem;color:var(--text-muted);">↳ Liquidités abondantes · Actifs risqués ↑</div>
+            <div style="font-size:0.72rem;color:var(--text-faint);margin-top:0.25rem;">Utilisé massivement par Fed, BCE, BoJ après 2008 et pendant Covid</div>
+          </div>
+        </div>
+        <div class="cb-card" style="border-color:var(--red);background:var(--red-soft);">
+          <div class="cb-card-name" style="color:var(--red);margin-bottom:0.5rem;">Quantitative Tightening (QT)</div>
+          <div style="display:flex;flex-direction:column;gap:0.3rem;">
+            <div style="font-size:0.78rem;color:var(--text-muted);">↳ Banque centrale laisse ses actifs expirer</div>
+            <div style="font-size:0.78rem;color:var(--text-muted);">↳ Moins d'acheteurs pour les obligations</div>
+            <div style="font-size:0.78rem;color:var(--text-muted);">↳ Prix des obligations ↓ · Taux longs ↑</div>
+            <div style="font-size:0.78rem;color:var(--text-muted);">↳ Liquidités se raréfient · Actifs risqués ↓</div>
+            <div style="font-size:0.72rem;color:var(--text-faint);margin-top:0.25rem;">Démarré par la Fed en 2022 pour lutter contre l'inflation post-Covid</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 06 CYCLES ─── -->
+<div class="section" id="cycles">
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <h2>Les cycles de taux</h2>
+    <span class="section-type">Macro · Temporalité</span>
+  </div>
+  <div class="layout-2col">
+    <div class="col-block">
+      <p>Les banques centrales ne fixent pas leur taux une fois pour toutes — elles l'ajustent en continu selon l'état de l'économie. Ces ajustements forment des <strong>cycles de taux</strong> qui durent généralement plusieurs années.</p>
+      <p>Un <strong>cycle de hausse</strong> (resserrement) survient quand l'économie surchauffe et que l'inflation dépasse la cible. La banque centrale monte ses taux progressivement pour refroidir la demande. Ce cycle se termine quand l'inflation est maîtrisée — ou quand l'économie montre des signes de récession.</p>
+      <p>Un <strong>cycle de baisse</strong> (assouplissement) survient pour stimuler une économie en ralentissement ou en crise. Les taux descendent pour relancer le crédit et l'investissement. La limite basse historique : zéro — ou légèrement négatif comme la BCE et la BoJ l'ont expérimenté.</p>
+      <div class="callout">
+        <p><strong>Le cycle 2022-2024 :</strong> la Fed a réalisé le cycle de hausse le plus rapide depuis 40 ans — de 0,25% à 5,50% en 18 mois — pour casser l'inflation post-Covid. Puis a commencé à baisser fin 2024. Un cas d'école à étudier.</p>
+      </div>
+    </div>
+    <div class="col-block">
+      <span class="meta-label">Cycle de taux Fed simulé — logique illustrative</span>
+      <div style="position:relative;height:220px;">
+        <canvas id="cycleChart" role="img" aria-label="Cycle de taux illustratif">Données illustratives.</canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 07 LIRE UNE DÉCISION ─── -->
+<div class="section" id="lire">
+  <div class="section-header">
+    <span class="section-num">07</span>
+    <h2>Lire une décision de taux</h2>
+    <span class="section-type">Pratique · Calendrier</span>
+  </div>
+  <div class="layout-2col">
+    <div class="col-block">
+      <p>Les marchés ne réagissent pas tant à la décision elle-même qu'à l'<strong>écart entre la décision et ce qui était attendu</strong>. Si tout le monde anticipe une hausse de 25 bps et que la banque centrale monte de 25 bps, il ne se passe rien de spectaculaire. C'est la surprise qui fait bouger les marchés.</p>
+      <p>C'est pourquoi les traders suivent avec attention les <strong>marchés de futures de taux</strong> (Fed Funds Futures, SOFR Futures en Europe) qui reflètent en temps réel les probabilités de décision anticipées par le marché. Si le marché price à 80% une hausse de 25 bps, c'est déjà dans les prix.</p>
+      <p>Les conférences de presse post-décision sont souvent plus importantes que la décision elle-même. Le ton du président de banque centrale — plus ou moins hawkish (restrictif) ou dovish (accommodant) — peut déclencher des mouvements violents.</p>
+      <div class="callout callout-blue">
+        <p><strong>Hawkish vs Dovish :</strong> "hawkish" désigne une posture favorable à des taux élevés pour contrôler l'inflation. "Dovish" désigne une posture favorable à des taux bas pour stimuler la croissance. Ce vocabulaire est omniprésent dans la presse financière.</p>
+      </div>
+    </div>
+    <div class="col-block">
+      <span class="meta-label">Structure d'une journée de décision de taux</span>
+      <div style="display:flex;flex-direction:column;gap:0.4rem;margin-top:0.25rem;">
+        <div class="cb-card">
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--blue);min-width:42px;margin-top:1px;">J-7</div>
+            <div>
+              <div style="font-size:0.78rem;font-weight:600;color:var(--text);">Silence réglementaire (blackout)</div>
+              <div style="font-size:0.72rem;color:var(--text-faint);">Les membres de la banque centrale ne communiquent plus publiquement.</div>
+            </div>
+          </div>
+        </div>
+        <div class="cb-card">
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--blue);min-width:42px;margin-top:1px;">14h00</div>
+            <div>
+              <div style="font-size:0.78rem;font-weight:600;color:var(--text);">Publication du communiqué</div>
+              <div style="font-size:0.72rem;color:var(--text-faint);">La décision de taux + le communiqué écrit. Première réaction des marchés.</div>
+            </div>
+          </div>
+        </div>
+        <div class="cb-card" style="border-color:var(--blue);background:var(--blue-soft);">
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--blue);min-width:42px;margin-top:1px;">14h30</div>
+            <div>
+              <div style="font-size:0.78rem;font-weight:600;color:var(--text);">Conférence de presse</div>
+              <div style="font-size:0.72rem;color:var(--text-faint);">La partie la plus scrutée. Chaque mot du président est analysé. La volatilité peut exploser.</div>
+            </div>
+          </div>
+        </div>
+        <div class="cb-card">
+          <div style="display:flex;gap:0.75rem;align-items:flex-start;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--blue);min-width:42px;margin-top:1px;">J+3</div>
+            <div>
+              <div style="font-size:0.78rem;font-weight:600;color:var(--text);">Minutes publiées (parfois)</div>
+              <div style="font-size:0.72rem;color:var(--text-faint);">Le détail des débats internes — qui a voté quoi, avec quels arguments.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 08 DIVERGENCE ─── -->
+<div class="section" id="divergence">
+  <div class="section-header">
+    <span class="section-num">08</span>
+    <h2>La divergence de politiques monétaires</h2>
+    <span class="section-type">Forex · Macro globale</span>
+  </div>
+  <div class="layout-2col">
+    <div class="col-block">
+      <p>Les grandes banques centrales ne bougent pas toujours dans le même sens en même temps. Quand leurs politiques divergent, cela crée des opportunités et des risques majeurs — notamment sur le <strong>marché des changes</strong>.</p>
+      <p>Le cas le plus marquant des dernières années : la divergence Fed/BoJ entre 2022 et 2024. La Fed montait agressivement ses taux pendant que la BoJ maintenait les siens au plancher. Résultat : le yen a perdu plus de 30% face au dollar. Les investisseurs empruntaient en yen (taux nul) pour investir en dollar (taux 5%) — c'est le <strong>carry trade</strong>.</p>
+      <div class="callout callout-amber">
+        <p><strong>Le risque du carry trade :</strong> cette stratégie fonctionne très bien — jusqu'au jour où la BoJ surprend les marchés en montant ses taux. Le yen s'apprécie brusquement, les positions se débouclent en masse, et c'est une cascade de ventes sur tous les actifs risqués. C'est exactement ce qui s'est passé en août 2024.</p>
+      </div>
+    </div>
+    <div class="col-block">
+      <span class="meta-label">Divergence de politiques — effets sur les marchés</span>
+      <div style="display:flex;flex-direction:column;gap:0.4rem;margin-top:0.25rem;">
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--bg-card2);border-bottom:1px solid var(--border);">
+            <div style="padding:0.5rem 0.75rem;font-size:0.68rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.08em;">Situation</div>
+            <div style="padding:0.5rem 0.75rem;font-size:0.68rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.08em;border-left:1px solid var(--border);">Impact Forex</div>
+            <div style="padding:0.5rem 0.75rem;font-size:0.68rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.08em;border-left:1px solid var(--border);">Impact marchés</div>
+          </div>
+          ${[
+            ['Fed monte, BCE stable','USD s\'apprécie vs EUR','Capitaux vers US, pression sur actifs EU'],
+            ['Fed baisse, BoJ monte','USD baisse vs JPY','Débouclage carry trade, volatilité globale'],
+            ['BCE monte, Fed stable','EUR s\'apprécie vs USD','Flux vers zone euro, pression sur marchés US'],
+            ['Toutes montent','Volatilité devises faible','Risk-off global — obligations et or résistent'],
+            ['Toutes baissent','Compétition à la dévaluation','Risk-on global — actifs risqués s\'envolent'],
+          ].map(([s,f,m]) => `
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border);">
+              <div style="padding:0.5rem 0.75rem;font-size:0.75rem;color:var(--text-muted);">${s}</div>
+              <div style="padding:0.5rem 0.75rem;font-size:0.75rem;color:var(--blue);border-left:1px solid var(--border);">${f}</div>
+              <div style="padding:0.5rem 0.75rem;font-size:0.72rem;color:var(--text-faint);border-left:1px solid var(--border);">${m}</div>
+            </div>`).join('')}
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;">
+            <div style="padding:0.5rem 0.75rem;font-size:0.75rem;color:var(--text-muted);">Politiques divergentes</div>
+            <div style="padding:0.5rem 0.75rem;font-size:0.75rem;color:var(--amber);border-left:1px solid var(--border);">Mouvements de change forts</div>
+            <div style="padding:0.5rem 0.75rem;font-size:0.72rem;color:var(--text-faint);border-left:1px solid var(--border);">Carry trades, flux de capitaux</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="bottom">
+  <div>
+    <h3>Prochainement</h3>
+    <p>L'analyse macro — inflation, croissance, emploi — comment lire les indicateurs économiques comme un professionnel.</p>
+  </div>
+  <a class="bottom-link" href="index.html">← Retour à l'accueil</a>
+</div>
+
+<script>
+const html = document.documentElement;
+const toggle = document.getElementById('themeToggle');
+const lbl = document.getElementById('toggle-lbl');
+toggle.addEventListener('click', switchTheme);
+toggle.addEventListener('keydown', e => (e.key==='Enter'||e.key===' ') && switchTheme());
+
+let charts = [];
+function switchTheme() {
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  toggle.setAttribute('aria-checked', String(!isDark));
+  lbl.textContent = isDark ? 'Light' : 'Dark';
+  charts.forEach(c => c.destroy()); charts = []; buildCharts();
+}
+
+function getC() {
+  const dark = html.getAttribute('data-theme') === 'dark';
+  return {
+    grid: dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+    tick: dark ? '#555' : '#bbb',
+  };
+}
+
+function buildCharts() {
+  const C = getC();
+  const tf = { size: 10, family: 'Inter' };
+  const labels = ['2019','2020','2021','2022','2023','2024','2025'];
+
+  /* RATES CHART */
+  charts.push(new Chart(document.getElementById('ratesChart'), {
+    type: 'line',
+    data: { labels, datasets: [
+      { label:'Fed', data:[2.5,0.25,0.25,4.5,5.5,5.0,4.5], borderColor:'#3b82f6', borderWidth:1.5, pointRadius:3, pointBackgroundColor:'#3b82f6', tension:0.2, fill:false },
+      { label:'BCE', data:[0.0,0.0,0.0,2.5,4.5,3.5,2.5], borderColor:'#f59e0b', borderWidth:1.5, pointRadius:3, pointBackgroundColor:'#f59e0b', tension:0.2, fill:false },
+      { label:'BoJ', data:[-0.1,-0.1,-0.1,-0.1,0.1,0.25,0.5], borderColor:'#a78bfa', borderWidth:1.5, pointRadius:3, pointBackgroundColor:'#a78bfa', tension:0.2, fill:false, borderDash:[4,3] },
+    ]},
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ display:false } },
+      scales: {
+        x:{ grid:{ color:C.grid }, ticks:{ color:C.tick, font:tf } },
+        y:{ grid:{ color:C.grid }, ticks:{ color:C.tick, font:tf, callback:v=>v+'%' }, min:-0.5, max:6.5 }
+      }
+    }
+  }));
+
+  /* CYCLE CHART */
+  const cycleLabels = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12','T13','T14','T15','T16'];
+  const cycleData   = [0.25,0.25,0.5,1.0,1.75,2.5,3.25,4.0,4.75,5.25,5.5,5.5,5.25,5.0,4.75,4.5];
+  charts.push(new Chart(document.getElementById('cycleChart'), {
+    type: 'line',
+    data: { labels: cycleLabels, datasets: [{
+      data: cycleData, borderColor:'#3b82f6', borderWidth:2,
+      pointRadius:2, pointBackgroundColor:'#3b82f6', tension:0.3, fill:true,
+      backgroundColor: html.getAttribute('data-theme')==='dark' ? 'rgba(96,165,250,0.08)' : 'rgba(37,99,235,0.06)'
+    }]},
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{ display:false },
+        annotation:{}
+      },
+      scales: {
+        x:{ grid:{ color:C.grid }, ticks:{ color:C.tick, font:tf } },
+        y:{ grid:{ color:C.grid }, ticks:{ color:C.tick, font:tf, callback:v=>v+'%' }, min:0, max:6.5,
+            afterDataLimits: scale => { scale.max = 6.5; } }
+      }
+    }
+  }));
+}
+
+buildCharts();
+</script>
+</body>
+</html>

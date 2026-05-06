@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Les types de graphiques — Finance Accessible</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #ffffff;
+  --bg-card:   #f5f5f5;
+  --bg-card2:  #eeeeee;
+  --border:    rgba(0,0,0,0.08);
+  --border-md: rgba(0,0,0,0.13);
+  --text:      #0a0a0a;
+  --text-muted:#555;
+  --text-faint:#999;
+  --green:     #00a85a;
+  --green-soft:rgba(0,168,90,0.08);
+  --red:       #e8203a;
+  --red-soft:  rgba(232,32,58,0.07);
+  --toggle-bg: #e8e8e8;
+  --toggle-knob:#fff;
+  --chart-grid:rgba(0,0,0,0.05);
+  --chart-tick:#aaa;
+}
+
+[data-theme="dark"] {
+  --bg:        #0d0d0d;
+  --bg-card:   #141414;
+  --bg-card2:  #1c1c1c;
+  --border:    rgba(255,255,255,0.07);
+  --border-md: rgba(255,255,255,0.14);
+  --text:      #f0f0f0;
+  --text-muted:#888;
+  --text-faint:#444;
+  --green:     #00c076;
+  --green-soft:rgba(0,192,118,0.10);
+  --red:       #f03349;
+  --red-soft:  rgba(240,51,73,0.10);
+  --toggle-bg: #2a2a2a;
+  --toggle-knob:#f0f0f0;
+  --chart-grid:rgba(255,255,255,0.05);
+  --chart-tick:#444;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.2s, color 0.2s;
+}
+
+body { max-width: 1000px; margin: 0 auto; padding: 0 1.5rem 6rem; }
+
+/* ── NAV ── */
+nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 0; border-bottom: 1px solid var(--border); margin-bottom: 3rem;
+}
+.nav-logo { font-size: 0.95rem; font-weight: 700; color: var(--text); text-decoration: none; letter-spacing: -0.02em; }
+.nav-links { display: flex; gap: 1.5rem; }
+.nav-links a { font-size: 0.8rem; color: var(--text-faint); text-decoration: none; transition: color 0.15s; }
+.nav-links a:hover { color: var(--text); }
+
+/* ── TOGGLE ── */
+.toggle-wrap { display: flex; align-items: center; gap: 0.5rem; }
+.toggle-label { font-size: 0.72rem; color: var(--text-faint); user-select: none; }
+.toggle {
+  position: relative; width: 36px; height: 20px;
+  background: var(--toggle-bg); border-radius: 100px; cursor: pointer;
+  border: 1px solid var(--border-md); transition: background 0.2s; flex-shrink: 0;
+}
+.toggle::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 14px; height: 14px; background: var(--toggle-knob);
+  border-radius: 50%; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+[data-theme="dark"] .toggle::after { transform: translateX(16px); }
+[data-theme="dark"] .toggle { background: #333; }
+
+/* ── HERO ── */
+.hero { margin-bottom: 2.5rem; }
+.hero-meta { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+.tag {
+  font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border-md);
+  color: var(--text-muted); background: var(--bg-card);
+}
+.tag-green { border-color: var(--green); color: var(--green); background: var(--green-soft); }
+.hero-time { font-size: 0.78rem; color: var(--text-faint); }
+
+h1 {
+  font-size: clamp(1.9rem, 4vw, 2.8rem); font-weight: 700;
+  letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 0.75rem; color: var(--text);
+}
+.hero-sub { font-size: 0.92rem; color: var(--text-muted); max-width: 600px; line-height: 1.65; }
+
+/* ── INTRO CALLOUT (haut de page) ── */
+.intro-note {
+  border: 1px solid var(--border-md);
+  border-left: 3px solid var(--text-faint);
+  background: var(--bg-card);
+  border-radius: 0 6px 6px 0;
+  padding: 1rem 1.25rem;
+  margin-bottom: 3rem;
+}
+.intro-note p { font-size: 0.85rem; color: var(--text-muted); margin: 0; line-height: 1.7; font-style: italic; }
+
+/* ── TOC ── */
+.toc {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 3.5rem;
+}
+.toc-item {
+  background: var(--bg-card); padding: 0.75rem 1rem;
+  display: flex; align-items: center; gap: 0.6rem;
+  text-decoration: none; transition: background 0.15s;
+}
+.toc-item:hover { background: var(--bg-card2); }
+.toc-num { font-size: 0.65rem; color: var(--text-faint); font-weight: 600; min-width: 16px; }
+.toc-label { font-size: 0.78rem; color: var(--text-muted); }
+
+/* ── SECTION ── */
+.section { margin-bottom: 4.5rem; scroll-margin-top: 2rem; }
+.section-header {
+  display: flex; align-items: baseline; gap: 0.75rem;
+  margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border);
+}
+.section-num { font-size: 0.7rem; color: var(--text-faint); font-weight: 600; }
+h2 { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
+.section-type { margin-left: auto; font-size: 0.68rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.08em; }
+
+/* ── LAYOUT ── */
+.layout-2col {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem;
+}
+.col-block { background: var(--bg); padding: 1.25rem; }
+
+/* ── CHART CARD ── */
+.chart-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
+.chart-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.65rem 1rem; border-bottom: 1px solid var(--border); background: var(--bg-card);
+}
+.chart-card-title { font-size: 0.75rem; font-weight: 600; color: var(--text); }
+.chart-card-meta { font-size: 0.68rem; color: var(--text-faint); }
+.chart-card-body { padding: 1rem; }
+
+/* ── TEXT ── */
+p { font-size: 0.875rem; line-height: 1.8; color: var(--text-muted); margin-bottom: 0.75rem; }
+p:last-child { margin-bottom: 0; }
+p strong { color: var(--text); font-weight: 600; }
+p em { font-style: italic; }
+sup { font-size: 0.65em; }
+
+/* ── CALLOUT ── */
+.callout {
+  border-left: 2px solid var(--green); padding: 0.75rem 1rem;
+  background: var(--green-soft); border-radius: 0 6px 6px 0; margin: 1rem 0;
+}
+.callout p { color: var(--green); font-size: 0.82rem; }
+.callout-red { border-left-color: var(--red); background: var(--red-soft); }
+.callout-red p { color: var(--red); }
+
+/* ── BOTTOM ── */
+.bottom {
+  border-top: 1px solid var(--border); padding-top: 2rem; margin-top: 4rem;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 2rem;
+}
+.bottom h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.bottom p { font-size: 0.82rem; color: var(--text-faint); }
+.bottom-link {
+  font-size: 0.78rem; color: var(--text-muted); text-decoration: none;
+  border: 1px solid var(--border-md); padding: 6px 14px; border-radius: 6px;
+  white-space: nowrap; transition: all 0.15s; background: var(--bg-card);
+}
+.bottom-link:hover { color: var(--text); background: var(--bg-card2); }
+
+/* ── META LABEL ── */
+.meta-label {
+  font-size: 0.68rem; color: var(--text-faint); text-transform: uppercase;
+  letter-spacing: 0.08em; margin-bottom: 0.5rem; display: block;
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="index.html">Finance Accessible</a>
+  <div class="nav-links">
+    <a href="tickers-marches.html">Marchés</a>
+    <a href="classes-actifs.html">Actifs</a>
+    <a href="banques-centrales.html">Banques centrales</a>
+  </div>
+  <div class="toggle-wrap">
+    <span class="toggle-label" id="toggle-lbl">Light</span>
+    <div class="toggle" id="themeToggle" role="switch" aria-checked="false" tabindex="0"></div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-meta">
+    <span class="tag tag-green">Fondamentaux</span>
+    <span class="tag">Analyse graphique</span>
+    <span class="hero-time">8 min de lecture</span>
+  </div>
+  <h1>Les types de graphiques</h1>
+  <p class="hero-sub">Avant d'analyser quoi que ce soit, encore faut-il bien lire ce qu'on a sous les yeux. Chaque type raconte la même histoire différemment — certains la simplifient, d'autres la densifient.</p>
+</div>
+
+<!-- INTRO NOTE -->
+<div class="intro-note">
+  <p>Il n'existe pas de type de graphique objectivement supérieur. Comprendre tous les types, c'est pouvoir choisir consciemment — plutôt que d'utiliser celui sélectionné par défaut. C'est déjà une longueur d'avance.</p>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <a class="toc-item" href="#ligne"><span class="toc-num">01</span><span class="toc-label">Graphique en ligne</span></a>
+  <a class="toc-item" href="#bougies"><span class="toc-num">02</span><span class="toc-label">Chandeliers japonais</span></a>
+  <a class="toc-item" href="#zones"><span class="toc-num">03</span><span class="toc-label">Graphique de zones</span></a>
+  <a class="toc-item" href="#ohlc"><span class="toc-num">04</span><span class="toc-label">Barres OHLC</span></a>
+  <a class="toc-item" href="#base100"><span class="toc-num">05</span><span class="toc-label">Base 100</span></a>
+  <a class="toc-item" href="#oscillateurs"><span class="toc-num">06</span><span class="toc-label">Oscillateurs</span></a>
+  <a class="toc-item" href="#double-axe"><span class="toc-num">07</span><span class="toc-label">Double axe Y</span></a>
+  <a class="toc-item" href="#heatmap"><span class="toc-num">08</span><span class="toc-label">Heatmap</span></a>
+  <a class="toc-item" href="#correlation"><span class="toc-num">09</span><span class="toc-label">Matrice de corrélation</span></a>
+</div>
+
+<!-- ─── 01 LIGNE ─── -->
+<div class="section" id="ligne">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <h2>Le graphique en ligne</h2>
+    <span class="section-type">Simple · Universel</span>
+  </div>
+  <div class="layout-2col">
+    <div class="col-block">
+      <p>C'est le point de départ de tout le monde. Une ligne relie les prix de <strong>clôture</strong> successifs — c'est tout. Pas d'information sur les hauts, les bas, ni les ouvertures.</p>
+      <p>Sa force, c'est sa clarté. Il filtre le bruit court-terme et permet de voir immédiatement la tendance de fond. C'est le graphique de la presse financière, de Bloomberg, des sites grand public.</p>
+      <div class="callout">
+        <p><strong>Idéal pour :</strong> comparer plusieurs actifs sur le même écran, avoir une vue macro, ou ne pas se laisser distraire par les mouvements intra-jour.</p>
+      </div>
+    </div>
+    <div class="col-block">
+      <span class="meta-label">CAC 40 · 12 mois simulés</span>
+      <div style="position:relative;height:190px;">
+        <canvas id="lineChart" role="img" aria-label="Graphique en ligne CAC 40 simulé">Données simulées.</canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 02 BOUGIES ─── -->
+<div class="section" id="bougies">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <h2>Les chandeliers japonais</h2>
+    <span class="section-type">Dense · Standard AT</span>
+  </div>
+  <div class="layout-2col">
+    <div class="col-block">
+      <p>Les bougies, c'est le <strong>standard de facto</strong> de l'analyse technique. Inventées au Japon au XVIII<sup>e</sup> siècle pour trader le riz, elles condensent quatre informations dans un seul élément visuel : ouverture, plus haut, plus bas, clôture.</p>
+      <p>Une bougie <strong style="color:var(--green)">verte</strong> = le cours a clôturé plus haut qu'ouvert. Une bougie <strong style="color:var(--red)">rouge</strong> = l'inverse. Le corps représente l'écart ouverture/clôture. Les mèches montrent les extrêmes atteints pendant la session.</p>
+      <p>C'est le format à privilégier si vous faites de l'analyse technique — il permet de lire des configurations (patterns) qu'une simple ligne ne montrerait pas.</p>
+      <div class="callout">
+        <p><strong>Pourquoi c'est puissant :</strong> en un coup d'œil, on voit non seulement où le marché est allé, mais comment il s'est comporté en chemin — et ça change tout.</p>
+      </div>
+    </div>
+    <div class="col-block">
+      <span class="meta-label">Anatomie d'une bougie</span>
+      <svg viewBox="0 0 260 190" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
+        <!-- green candle -->
+        <line x1="55" y1="10" x2="55" y2="38" stroke="#00a85a" stroke-width="1.5" stroke-linecap="round"/>
+        <rect x="41" y="38" width="28" height="76" rx="2" fill="#00a85a" opacity="0.9"/>
+        <line x1="55" y1="114" x2="55" y2="142" stroke="#00a85a" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="70" y1="12" x2="95" y2="12" stroke="#ccc" stroke-width="0.7"/>
+        <text x="98" y="15" font-family="Inter,sans-serif" font-size="8.5" fill="#999">Plus haut</text>
+        <line x1="70" y1="40" x2="95" y2="40" stroke="#ccc" stroke-width="0.7"/>
+        <text x="98" y="43" font-family="Inter,sans-serif" font-size="8.5" fill="#999">Clôture</text>
+        <line x1="70" y1="112" x2="95" y2="112" stroke="#ccc" stroke-width="0.7"/>
+        <text x="98" y="115" font-family="Inter,sans-serif" font-size="8.5" fill="#999">Ouverture</text>
+        <line x1="70" y1="140" x2="95" y2="140" stroke="#ccc" stroke-width="0.7"/>
+        <text x="98" y="143" font-family="Inter,sans-serif" font-size="8.5" fill="#999">Plus bas</text>
+        <text x="55" y="168" font-family="Inter,sans-serif" font-size="9" fill="#00a85a" text-anchor="middle" font-weight="700">Haussière ↑</text>
+
+        <!-- red candle -->
+        <line x1="195" y1="10" x2="195" y2="38" stroke="#e8203a" stroke-width="1.5" stroke-linecap="round"/>
+        <rect x="181" y="38" width="28" height="76" rx="2" fill="#e8203a" opacity="0.9"/>
+        <line x1="195" y1="114" x2="195" y2="142" stroke="#e8203a" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="172" y1="40" x2="150" y2="40" stroke="#ccc" stroke-width="0.7"/>
+        <text x="148" y="43" font-family="Inter,sans-serif" font-size="8.5" fill="#999" text-anchor="end">Ouverture</text>
+        <line x1="172" y1="112" x2="150" y2="112" stroke="#ccc" stroke-width="0.7"/>
+        <text x="148" y="115" font-family="Inter,sans-serif" font-size="8.5" fill="#999" text-anchor="end">Clôture</text>
+        <text x="195" y="168" font-family="Inter,sans-serif" font-size="9" fill="#e8203a" text-anchor="middle" font-weight="700">Baissière ↓</text>
+      </svg>
+    </div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-card-header">
+      <span class="chart-card-title">BTC/USD · Séquence journalière simulée</span>
+      <span class="chart-card-meta">Données simulées · 1J</span>
+    </div>
+    <div class="chart-card-body" style="padding:0.75rem 1rem;">
+      <svg id="candleSVG" viewBox="0 0 860 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;" role="img" aria-label="Graphique en bougies japonaises simulé">
+        <!-- grid lines + y-axis labels injected by JS -->
+        <g id="candle-grid"></g>
+        <g id="candle-bodies"></g>
+        <g id="candle-xlabels"></g>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 03 ZONES ─── -->
+<div class="section" id="zones">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <h2>Le graphique de zones</h2>
+    <span class="section-type">Visuel · Grand public</span>
+  </div>
+  <div class="layout-2col">
+    <div class="col-block">
+      <p>C'est un graphique en ligne avec la surface sous la courbe colorée. Fonctionnellement, <strong>il donne exactement les mêmes informations</strong> que la ligne — juste le prix de clôture. La différence est purement visuelle.</p>
+      <p>La zone colorée donne une impression de masse et attire l'œil sur les grandes tendances. On le retrouve partout dans les apps fintech (Coinbase, Trade Republic) car il est beau et lisible d'un coup d'œil. Pour l'analyse sérieuse, il n'apporte rien de plus que la simple ligne.</p>
+      <div class="callout">
+        <p><strong>À retenir :</strong> idéal pour mettre en évidence une performance long terme. La zone crée un effet visuel fort sans ajouter de complexité.</p>
+      </div>
+    </div>
+    <div class="col-block">
+      <span class="meta-label">ETH · Performance simulée</span>
+      <div style="position:relative;height:190px;">
+        <canvas id="areaChart" role="img" aria-label="Graphique de zones simulé">Données simulées.</canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 04 OHLC ─── -->
+<div class="section" id="ohlc">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <h2>Le graphique en barres (OHLC)</h2>
+    <span class="section-type">Institutionnel · Vétérans</span>
+  </div>
+  <div class="layout-2col">
+    <div class="col-block">
+      <p>Avant que les chandeliers japonais ne s'imposent en Occident dans les années 1990, les traders utilisaient les <strong>barres OHLC</strong>. Chaque barre verticale couvre l'amplitude complète de la session : une encoche à gauche indique le prix d'ouverture, une encoche à droite indique la clôture.</p>
+      <p>Elles donnent exactement les mêmes informations que les bougies, mais sont visuellement moins intuitives — pas de distinction couleur immédiate entre hausse et baisse. On les retrouve encore sur les terminaux Bloomberg et Reuters, par <strong>habitude</strong> plus que par nécessité.</p>
+    </div>
+    <div class="col-block">
+      <span class="meta-label">Anatomie · Barre OHLC</span>
+      <svg viewBox="0 0 240 170" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
+        <!-- green bar -->
+        <line x1="65" y1="12" x2="65" y2="140" stroke="#00a85a" stroke-width="2" stroke-linecap="round"/>
+        <line x1="65" y1="100" x2="50" y2="100" stroke="#00a85a" stroke-width="2" stroke-linecap="round"/>
+        <line x1="65" y1="45" x2="80" y2="45" stroke="#00a85a" stroke-width="2" stroke-linecap="round"/>
+        <text x="90" y="16" font-family="Inter,sans-serif" font-size="8.5" fill="#999">Plus haut</text>
+        <text x="30" y="103" font-family="Inter,sans-serif" font-size="8.5" fill="#999" text-anchor="end">Ouverture</text>
+        <text x="90" y="49" font-family="Inter,sans-serif" font-size="8.5" fill="#999">Clôture</text>
+        <text x="90" y="144" font-family="Inter,sans-serif" font-size="8.5" fill="#999">Plus bas</text>
+        <text x="65" y="162" font-family="Inter,sans-serif" font-size="9" fill="#00a85a" text-anchor="middle" font-weight="700">Haussière ↑</text>
+
+        <!-- red bar -->
+        <line x1="180" y1="12" x2="180" y2="140" stroke="#e8203a" stroke-width="2" stroke-linecap="round"/>
+        <line x1="180" y1="40" x2="165" y2="40" stroke="#e8203a" stroke-width="2" stroke-linecap="round"/>
+        <line x1="180" y1="100" x2="195" y2="100" stroke="#e8203a" stroke-width="2" stroke-linecap="round"/>
+        <text x="145" y="44" font-family="Inter,sans-serif" font-size="8.5" fill="#999" text-anchor="end">Ouverture</text>
+        <text x="205" y="104" font-family="Inter,sans-serif" font-size="8.5" fill="#999">Clôture</text>
+        <text x="180" y="162" font-family="Inter,sans-serif" font-size="9" fill="#e8203a" text-anchor="middle" font-weight="700">Baissière ↓</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 05 BASE 100 ─── -->
+<div class="section" id="base100">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <h2>Le graphique en base 100</h2>
+    <span class="section-type">Comparaison · Relatif</span>
+  </div>
+  <div class="layout-2col">
+    <div class="col-block">
+      <p>Le graphique en base 100 est une variation du graphique en ligne, conçue pour <strong>comparer des actifs sur une même échelle</strong>. On fixe une date de départ commune et on rebaise tous les actifs à 100 à cette date. Ce qui compte ensuite, c'est la <em>performance relative</em>, pas le prix absolu.</p>
+      <p>C'est ce qui permet de comparer l'évolution du CAC 40, du S&P 500 et de l'or sur le même graphique — même si leurs prix respectifs n'ont rien à voir. Sans cette technique, comparer un actif à 50 € et un autre à 4 000 $ sur le même axe n'aurait aucun sens visuel.</p>
+      <div class="callout">
+        <p><strong>Cas d'usage typique :</strong> "Depuis le début de l'année, est-ce que les actions tech ont fait mieux que les obligations ?" — c'est exactement le genre de question à laquelle répond la base 100.</p>
+      </div>
+    </div>
+    <div class="col-block">
+      <span class="meta-label">CAC 40 vs S&P 500 vs Or · Base 100 simulée</span>
+      <div style="position:relative;height:190px;">
+        <canvas id="base100Chart" role="img" aria-label="Graphique en base 100 comparant trois actifs">Données simulées.</canvas>
+      </div>
+      <div style="display:flex;gap:1rem;margin-top:0.6rem;">
+        <span style="display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--text-faint)"><span style="width:18px;height:2px;background:#3b82f6;display:inline-block;border-radius:2px"></span>CAC 40</span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--text-faint)"><span style="width:18px;height:2px;background:#f59e0b;display:inline-block;border-radius:2px"></span>S&P 500</span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--text-faint)"><span style="width:18px;height:2px;background:#aaa;display:inline-block;border-radius:2px;border-top:1px dashed #aaa"></span>Or</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 06 OSCILLATEURS ─── -->
+<div class="section" id="oscillateurs">
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <h2>Les oscillateurs</h2>
+    <span class="section-type">Momentum · Sous-graphique</span>
+  </div>
+  <div class="layout-2col">
+    <div class="col-block">
+      <p>Un oscillateur, c'est simplement <strong>une ligne qui monte et descend autour d'une valeur centrale</strong>. Elle ne représente pas un prix — elle mesure quelque chose de plus abstrait : la vitesse ou la force du mouvement de prix.</p>
+      <p>On l'affiche toujours en sous-graphique, <em>sous</em> le graphique de prix principal. Elle oscille entre deux bornes (souvent 0 et 100, ou -100 et +100) et croise régulièrement une ligne de base — cette ligne centrale est souvent l'endroit le plus regardé.</p>
+      <p>Les oscillateurs les plus courants ont des noms comme RSI, MACD ou Stochastique, mais l'idée derrière tous est la même : donner une lecture du <em>rythme</em> du marché, là où le graphique de prix montre seulement la <em>direction</em>.</p>
+    </div>
+    <div class="col-block">
+      <span class="meta-label">Exemple d'oscillateur · Ligne autour de 50</span>
+      <div style="position:relative;height:190px;">
+        <canvas id="oscChart" role="img" aria-label="Oscillateur générique simulé">Données oscillateur simulées.</canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 07 DOUBLE AXE Y ─── -->
+<div class="section" id="double-axe">
+  <div class="section-header">
+    <span class="section-num">07</span>
+    <h2>Le graphique à double axe Y</h2>
+    <span class="section-type">Macro · Superposition</span>
+  </div>
+  <div class="layout-2col">
+    <div class="col-block">
+      <p>Quand on veut superposer deux séries qui n'ont <strong>pas la même unité ou la même échelle</strong>, un axe Y unique ne suffit plus. Le double axe Y résout ça : chaque série a son propre axe, à gauche et à droite du graphique.</p>
+      <p>C'est un outil courant en macro : superposer un taux d'intérêt (en %) avec un indice boursier (en points), ou un prix de matière première avec un indicateur économique. Les deux lignes partagent le même axe des temps — c'est leur <em>relation temporelle</em> qui est intéressante à lire.</p>
+      <div class="callout">
+        <p><strong>À utiliser avec précaution :</strong> l'échelle de chaque axe peut être manipulée pour faire paraître deux séries corrélées alors qu'elles ne le sont pas vraiment. Toujours regarder les unités.</p>
+      </div>
+    </div>
+    <div class="col-block">
+      <span class="meta-label">Taux 10 ans (%) vs Indice actions · Simulés</span>
+      <div style="position:relative;height:190px;">
+        <canvas id="dualAxisChart" role="img" aria-label="Graphique à double axe Y simulé">Données simulées.</canvas>
+      </div>
+      <div style="display:flex;gap:1rem;margin-top:0.6rem;">
+        <span style="display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--text-faint)"><span style="width:18px;height:2px;background:#3b82f6;display:inline-block;border-radius:2px"></span>Taux 10 ans (axe gauche, %)</span>
+        <span style="display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--text-faint)"><span style="width:18px;height:2px;background:#f59e0b;display:inline-block;border-radius:2px"></span>Indice actions (axe droit)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 08 HEATMAP ─── -->
+<div class="section" id="heatmap">
+  <div class="section-header">
+    <span class="section-num">08</span>
+    <h2>La heatmap</h2>
+    <span class="section-type">Densité · Vue d'ensemble</span>
+  </div>
+  <div class="layout-2col">
+    <div class="col-block">
+      <p>La heatmap — carte de chaleur — représente des données sous forme de <strong>grille colorée</strong>. Chaque cellule correspond à une valeur : plus la couleur est intense, plus la valeur est élevée (ou basse). L'œil capte instantanément les zones chaudes et froides sans lire un seul chiffre.</p>
+      <p>En finance, on la retrouve partout : performance mensuelle d'un actif sur plusieurs années, activité de marché par heure et par jour, ou répartition sectorielle d'un indice. C'est un outil de <em>lecture rapide</em> — idéal pour repérer des patterns sur de grands volumes de données.</p>
+      <div class="callout">
+        <p><strong>Exemple classique :</strong> la saisonnalité des marchés. Une heatmap mois × année permet de voir en un coup d'œil si janvier est historiquement haussier ou si l'été est systématiquement mou.</p>
+      </div>
+    </div>
+    <div class="col-block">
+      <span class="meta-label">Performance mensuelle simulée · % par mois et par année</span>
+      <div id="heatmapSVG" style="width:100%;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 09 MATRICE DE CORRÉLATION ─── -->
+<div class="section" id="correlation">
+  <div class="section-header">
+    <span class="section-num">09</span>
+    <h2>La matrice de corrélation</h2>
+    <span class="section-type">Relations · Portefeuille</span>
+  </div>
+  <div class="layout-2col">
+    <div class="col-block">
+      <p>La matrice de corrélation est une heatmap particulière : elle montre à quel point <strong>deux actifs bougent ensemble</strong>. Une corrélation de +1 signifie qu'ils évoluent à l'identique. Une corrélation de -1 signifie qu'ils évoluent en sens opposé. Zéro signifie qu'ils sont indépendants.</p>
+      <p>C'est un outil fondamental en construction de portefeuille. Combiner des actifs peu corrélés entre eux permet de réduire le risque global sans forcément sacrifier le rendement — c'est le principe de la diversification.</p>
+      <div class="callout">
+        <p><strong>Ce qu'on cherche :</strong> des actifs avec des corrélations proches de zéro, voire négatives. Un portefeuille 100% d'actifs corrélés à +1 n'est pas diversifié — c'est juste le même pari répété.</p>
+      </div>
+    </div>
+    <div class="col-block">
+      <span class="meta-label">Matrice de corrélation simulée · 6 actifs</span>
+      <div id="corrSVG" style="width:100%;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM -->
+<div class="bottom">
+  <div>
+    <h3>Prochainement</h3>
+    <p>Supports, résistances, et niveaux clés — comment les identifier et s'en servir.</p>
+  </div>
+  <a class="bottom-link" href="#">Voir tous les articles →</a>
+</div>
+
+<script>
+const html = document.documentElement;
+const toggle = document.getElementById('themeToggle');
+const lbl = document.getElementById('toggle-lbl');
+
+toggle.addEventListener('click', switchTheme);
+toggle.addEventListener('keydown', e => (e.key==='Enter'||e.key===' ') && switchTheme());
+
+function switchTheme() {
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  toggle.setAttribute('aria-checked', String(!isDark));
+  lbl.textContent = isDark ? 'Light' : 'Dark';
+  rebuildCharts();
+}
+
+let charts = [];
+
+function getC() {
+  const dark = html.getAttribute('data-theme') === 'dark';
+  return {
+    grid:  dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+    tick:  dark ? '#555' : '#aaa',
+    line:  dark ? '#e0e0e0' : '#111',
+    green: dark ? '#00c076' : '#00a85a',
+    red:   dark ? '#f03349' : '#e8203a',
+  };
+}
+
+function rebuildCharts() { charts.forEach(c => c.destroy()); charts = []; buildCharts(); }
+
+function buildCharts() {
+  const C = getC();
+  const tf = { size: 10, family: 'Inter' };
+  const months = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
+
+  /* LINE */
+  const lineData = [7200,7350,7180,7420,7650,7580,7810,7760,8020,7940,8250,8380];
+  charts.push(new Chart(document.getElementById('lineChart'), {
+    type: 'line',
+    data: { labels: months, datasets: [{ data: lineData, borderColor: C.line, borderWidth: 1.5, pointRadius: 0, tension: 0.35, fill: false }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales: { x:{grid:{color:C.grid},ticks:{color:C.tick,font:tf}}, y:{grid:{color:C.grid},ticks:{color:C.tick,font:tf,callback:v=>v.toLocaleString()}} } }
+  }));
+
+  /* CANDLE — SVG renderer */
+  (function renderCandles() {
+    const candles = [
+      {o:42200,c:43100,h:43600,l:41800},
+      {o:43100,c:42600,h:43400,l:42200},
+      {o:42600,c:43800,h:44100,l:42400},
+      {o:43800,c:44500,h:44900,l:43500},
+      {o:44500,c:43900,h:44800,l:43600},
+      {o:43900,c:44700,h:45200,l:43700},
+      {o:44700,c:44200,h:45000,l:43900},
+      {o:44200,c:45100,h:45400,l:44000},
+      {o:45100,c:46200,h:46500,l:44900},
+      {o:46200,c:45600,h:46700,l:45300},
+      {o:45600,c:46800,h:47100,l:45400},
+      {o:46800,c:46100,h:47200,l:45800},
+      {o:46100,c:47200,h:47600,l:45900},
+      {o:47200,c:47800,h:48200,l:46900},
+      {o:47800,c:47100,h:48100,l:46800},
+      {o:47100,c:48200,h:48600,l:46900},
+      {o:48200,c:47500,h:48700,l:47200},
+      {o:47500,c:48900,h:49200,l:47300},
+      {o:48900,c:48300,h:49400,l:48000},
+      {o:48300,c:49500,h:49800,l:48100},
+    ];
+    const labels = ['J1','J2','J3','J4','J5','J6','J7','J8','J9','J10','J11','J12','J13','J14','J15','J16','J17','J18','J19','J20'];
+
+    const svgW = 860, svgH = 200;
+    const padL = 44, padR = 10, padT = 12, padB = 28;
+    const chartW = svgW - padL - padR;
+    const chartH = svgH - padT - padB;
+
+    const allPrices = candles.flatMap(d=>[d.h,d.l]);
+    const minP = Math.min(...allPrices) - 200;
+    const maxP = Math.max(...allPrices) + 200;
+    const pxPerPrice = chartH / (maxP - minP);
+    const toY = p => padT + (maxP - p) * pxPerPrice;
+
+    const step = chartW / candles.length;
+    const bodyW = Math.max(6, step * 0.45);
+
+    const dark = html.getAttribute('data-theme') === 'dark';
+    const green = C.green, red = C.red;
+    const gridCol = dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+    const tickCol = dark ? '#555' : '#bbb';
+    const textCol = dark ? '#666' : '#bbb';
+
+    const grid  = document.getElementById('candle-grid');
+    const bodies = document.getElementById('candle-bodies');
+    const xlbls = document.getElementById('candle-xlabels');
+    grid.innerHTML = ''; bodies.innerHTML = ''; xlbls.innerHTML = '';
+
+    // Grid + Y labels
+    const yTicks = 4;
+    for (let i = 0; i <= yTicks; i++) {
+      const p = minP + (maxP - minP) * (i / yTicks);
+      const y = toY(p);
+      const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+      line.setAttribute('x1', padL); line.setAttribute('x2', svgW - padR);
+      line.setAttribute('y1', y);    line.setAttribute('y2', y);
+      line.setAttribute('stroke', gridCol); line.setAttribute('stroke-width','0.8');
+      grid.appendChild(line);
+      const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x', padL - 4); t.setAttribute('y', y + 3.5);
+      t.setAttribute('text-anchor','end');
+      t.setAttribute('font-family','Inter,sans-serif'); t.setAttribute('font-size','9');
+      t.setAttribute('fill', textCol);
+      t.textContent = (p/1000).toFixed(0)+'k';
+      grid.appendChild(t);
+    }
+
+    // Candles
+    candles.forEach((d, i) => {
+      const cx = padL + i * step + step / 2;
+      const up = d.c >= d.o;
+      const color = up ? green : red;
+      const bodyTop    = toY(Math.max(d.o, d.c));
+      const bodyBottom = toY(Math.min(d.o, d.c));
+      const bodyH      = Math.max(1.5, bodyBottom - bodyTop);
+      const wickTop    = toY(d.h);
+      const wickBottom = toY(d.l);
+
+      // wick
+      const wick = document.createElementNS('http://www.w3.org/2000/svg','line');
+      wick.setAttribute('x1', cx); wick.setAttribute('x2', cx);
+      wick.setAttribute('y1', wickTop); wick.setAttribute('y2', wickBottom);
+      wick.setAttribute('stroke', color); wick.setAttribute('stroke-width','1.5');
+      wick.setAttribute('stroke-linecap','round');
+      bodies.appendChild(wick);
+
+      // body
+      const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      rect.setAttribute('x', cx - bodyW/2);
+      rect.setAttribute('y', bodyTop);
+      rect.setAttribute('width', bodyW);
+      rect.setAttribute('height', bodyH);
+      rect.setAttribute('rx','2');
+      rect.setAttribute('fill', up ? color+'cc' : color+'cc');
+      rect.setAttribute('stroke', color);
+      rect.setAttribute('stroke-width','1');
+      bodies.appendChild(rect);
+
+      // X label (every 4)
+      if (i % 4 === 0) {
+        const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+        t.setAttribute('x', cx); t.setAttribute('y', svgH - 4);
+        t.setAttribute('text-anchor','middle');
+        t.setAttribute('font-family','Inter,sans-serif'); t.setAttribute('font-size','9');
+        t.setAttribute('fill', textCol);
+        t.textContent = labels[i];
+        xlbls.appendChild(t);
+      }
+    });
+  })();
+
+  /* AREA */
+  const areaData = [1800,1950,1720,2100,2380,2200,2600,2480,2800,2650,3100,3350];
+  charts.push(new Chart(document.getElementById('areaChart'), {
+    type: 'line',
+    data: { labels: months, datasets: [{ data: areaData, borderColor: C.green, borderWidth:1.5, pointRadius:0, tension:0.35, fill:true, backgroundColor: C.green+'18' }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales: { x:{grid:{color:C.grid},ticks:{color:C.tick,font:tf}}, y:{min:1400,grid:{color:C.grid},ticks:{color:C.tick,font:tf,callback:v=>'$'+v.toLocaleString()}} } }
+  }));
+
+  /* BASE 100 */
+  const b100labels = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
+  const cac   = [100, 103, 99, 105, 108, 106, 112, 110, 115, 113, 119, 122];
+  const sp    = [100, 105, 102, 109, 114, 111, 118, 116, 122, 120, 127, 131];
+  const gold  = [100, 101, 103, 100, 98,  102, 104, 107, 105, 109, 106, 108];
+  charts.push(new Chart(document.getElementById('base100Chart'), {
+    type: 'line',
+    data: { labels: b100labels, datasets: [
+      { data: cac,  borderColor:'#3b82f6', borderWidth:1.5, pointRadius:0, tension:0.35, fill:false },
+      { data: sp,   borderColor:'#f59e0b', borderWidth:1.5, pointRadius:0, tension:0.35, fill:false },
+      { data: gold, borderColor:'#aaa',    borderWidth:1.5, pointRadius:0, tension:0.35, fill:false, borderDash:[4,3] }
+    ]},
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales: {
+        x:{grid:{color:C.grid},ticks:{color:C.tick,font:tf}},
+        y:{grid:{color:C.grid},ticks:{color:C.tick,font:tf,callback:v=>v},min:94,
+           afterDataLimits: scale => { scale.max = scale.max + 3; }}
+      }
+    }
+  }));
+
+  /* OSCILLATEUR */
+  const oscData = [50,52,56,60,65,70,67,62,57,52,48,44,40,38,42,47,52,58,63,67,64,59,54,50,46,50,54,58,55,50];
+  charts.push(new Chart(document.getElementById('oscChart'), {
+    type: 'line',
+    data: { labels: oscData.map((_,i)=>i+1), datasets: [
+      { data: oscData, borderColor:'#7c6af0', borderWidth:1.5, pointRadius:0, tension:0.4, fill:false },
+      { data: oscData.map(()=>50), borderColor: C.tick, borderWidth:1, pointRadius:0, borderDash:[4,3], fill:false }
+    ]},
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales: {
+        x:{grid:{display:false},ticks:{display:false}},
+        y:{min:20, max:80, grid:{color:C.grid},
+           ticks:{color:C.tick, font:tf, callback: v => v===50 ? '← ligne de base' : v===20||v===80 ? v : ''}}
+      }
+    }
+  }));
+  /* DOUBLE AXE Y */
+  const dualMonths = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
+  const rateData  = [2.8, 3.1, 3.4, 3.2, 3.6, 3.9, 3.7, 4.0, 4.3, 4.1, 3.8, 3.5];
+  const indexData = [4800,4950,4820,5100,5350,5200,5500,5420,5700,5580,5850,6050];
+  charts.push(new Chart(document.getElementById('dualAxisChart'), {
+    type: 'line',
+    data: { labels: dualMonths, datasets: [
+      { data: rateData,  borderColor:'#3b82f6', borderWidth:1.5, pointRadius:0, tension:0.35, fill:false, yAxisID:'y' },
+      { data: indexData, borderColor:'#f59e0b', borderWidth:1.5, pointRadius:0, tension:0.35, fill:false, yAxisID:'y1' }
+    ]},
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales: {
+        x:  { grid:{color:C.grid}, ticks:{color:C.tick,font:tf} },
+        y:  { position:'left',  grid:{color:C.grid}, ticks:{color:'#3b82f6',font:tf, callback:v=>v+'%'}, min:2.4, max:4.8 },
+        y1: { position:'right', grid:{display:false}, ticks:{color:'#f59e0b',font:tf, callback:v=>(v/1000).toFixed(1)+'k'}, min:4600, max:6400 }
+      }
+    }
+  }));
+
+  function hexAlpha(hex, a) {
+    const r = parseInt(hex.slice(1,3),16);
+    const g = parseInt(hex.slice(3,5),16);
+    const b = parseInt(hex.slice(5,7),16);
+    return `rgba(${r},${g},${b},${a.toFixed(2)})`;
+  }
+
+  /* HEATMAP — SVG */
+  (function renderHeatmap() {
+    const dark = html.getAttribute('data-theme') === 'dark';
+    const years = ['2020','2021','2022','2023','2024'];
+    const mths  = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+    const data  = [
+      [ 2.1,-1.2, 4.5, 3.0,-2.1, 1.8,-0.5, 2.3,-1.1, 3.2, 2.8, 1.5],
+      [ 0.8, 3.2,-0.9, 4.1, 1.2,-1.5, 2.7, 1.0,-2.3, 4.5, 1.8,-0.7],
+      [-3.5,-2.1,-4.2, 1.5,-3.8,-2.0, 3.1,-1.5,-5.1,-2.8, 1.2,-3.0],
+      [ 4.2, 1.8,-1.1, 2.5, 1.9, 3.0,-0.8, 2.1, 1.5,-1.2, 3.8, 2.2],
+      [ 1.5, 2.8, 3.1,-0.5, 2.2, 1.0, 3.5,-0.9, 2.8, 1.8,-0.3, 2.1],
+    ];
+    const cellW = 30, cellH = 26, padL = 36, padT = 18;
+    const W = padL + 12 * cellW + 2, H = padT + 5 * cellH + 22;
+    const tCol = dark ? '#666' : '#bbb';
+    const colorCell = v => {
+      const t = Math.min(1, Math.abs(v) / 5);
+      const hex = v > 0 ? (dark ? '#00c076' : '#00a85a') : (dark ? '#f03349' : '#e8203a');
+      return hexAlpha(hex, 0.15 + t * 0.75);
+    };
+    const textColor = v => Math.abs(v) > 3 ? (dark?'#fff':'#111') : (dark?'#aaa':'#555');
+
+    let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;" role="img" aria-label="Heatmap de performance mensuelle">`;
+    mths.forEach((m,ci) => {
+      s += `<text x="${padL+ci*cellW+cellW/2}" y="${padT-5}" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="${tCol}">${m}</text>`;
+    });
+    data.forEach((row,ri) => {
+      const y = padT + ri * cellH;
+      s += `<text x="${padL-4}" y="${y+cellH/2+3.5}" text-anchor="end" font-family="Inter,sans-serif" font-size="8.5" fill="${tCol}">${years[ri]}</text>`;
+      row.forEach((v,ci) => {
+        const x = padL + ci * cellW;
+        s += `<rect x="${x+1}" y="${y+1}" width="${cellW-2}" height="${cellH-2}" rx="3" fill="${colorCell(v)}"/>`;
+        s += `<text x="${x+cellW/2}" y="${y+cellH/2+3.5}" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" font-weight="500" fill="${textColor(v)}">${v>0?'+':''}${v.toFixed(1)}</text>`;
+      });
+    });
+    const ly = H - 10;
+    s += `<text x="${padL}" y="${ly}" font-family="Inter,sans-serif" font-size="8" fill="${tCol}">−</text>`;
+    for (let i=0;i<=10;i++) {
+      const v = (i/10)*10-5;
+      s += `<rect x="${padL+10+i*13}" y="${ly-9}" width="12" height="9" rx="2" fill="${colorCell(v)}"/>`;
+    }
+    s += `<text x="${padL+10+11*13}" y="${ly}" font-family="Inter,sans-serif" font-size="8" fill="${tCol}">+</text>`;
+    s += `</svg>`;
+    document.getElementById('heatmapSVG').innerHTML = s;
+  })();
+
+  /* MATRICE DE CORRÉLATION — SVG */
+  (function renderCorr() {
+    const dark = html.getAttribute('data-theme') === 'dark';
+    const assets = ['CAC 40','S&P 500','Or','BTC','Oblig.','USD'];
+    const corr = [
+      [ 1.00, 0.87, 0.12,-0.08,-0.42,-0.31],
+      [ 0.87, 1.00, 0.08,-0.05,-0.38,-0.27],
+      [ 0.12, 0.08, 1.00, 0.21, 0.35, 0.15],
+      [-0.08,-0.05, 0.21, 1.00,-0.12, 0.08],
+      [-0.42,-0.38, 0.35,-0.12, 1.00, 0.28],
+      [-0.31,-0.27, 0.15, 0.08, 0.28, 1.00],
+    ];
+    const n = assets.length, cell = 52, padL = 46, padT = 46;
+    const W = padL + n*cell + 2, H = padT + n*cell + 2;
+    const tCol = dark ? '#666' : '#aaa';
+
+    const colorCorr = v => {
+      if (v === 1) return dark ? '#1e1e1e' : '#f0f0f0';
+      const t = Math.abs(v);
+      if (v > 0) return hexAlpha('#3b82f6', 0.1 + t * 0.75);
+      return hexAlpha('#e8203a', 0.1 + t * 0.75);
+    };
+    const textColor = v => Math.abs(v) > 0.5 ? (dark?'#eee':'#111') : (dark?'#888':'#555');
+
+    let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;" role="img" aria-label="Matrice de corrélation simulée">`;
+    assets.forEach((a,i) => {
+      const cx = padL + i*cell + cell/2, cy = padT + i*cell + cell/2;
+      s += `<text x="${cx}" y="${padT-6}" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" fill="${tCol}">${a}</text>`;
+      s += `<text x="${padL-4}" y="${cy+3.5}" text-anchor="end" font-family="Inter,sans-serif" font-size="8.5" fill="${tCol}">${a}</text>`;
+    });
+    for (let r=0;r<n;r++) for (let c=0;c<n;c++) {
+      const v = corr[r][c];
+      const x = padL+c*cell, y = padT+r*cell;
+      s += `<rect x="${x+1}" y="${y+1}" width="${cell-2}" height="${cell-2}" rx="4" fill="${colorCorr(v)}"/>`;
+      const lbl = v===1 ? '1.00' : (v>0?'+':'')+v.toFixed(2);
+      s += `<text x="${x+cell/2}" y="${y+cell/2+4}" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="600" fill="${textColor(v)}">${lbl}</text>`;
+    }
+    s += `</svg>`;
+    document.getElementById('corrSVG').innerHTML = s;
+  })();
+
+}
+
+buildCharts();
+</script>
+</body>
+</html>
